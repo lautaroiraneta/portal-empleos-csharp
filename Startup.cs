@@ -1,16 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Serialization;
 
 namespace PortalEmpleos
 {
@@ -26,9 +20,17 @@ namespace PortalEmpleos
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddCors();
+			services.AddCors(c =>
+			{
+				c.AddPolicy("AllowOrigin", options => options.WithOrigins("https://localhost:4200"));
+			});
 
-			services.AddControllers();
+			services.AddControllers().AddNewtonsoftJson(options =>
+			{
+				options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+				options.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
+				options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+			});
 
 			services.AddSwaggerGen(config =>
 			{
@@ -53,7 +55,7 @@ namespace PortalEmpleos
 				});
 
 				app.UseCors(
-					options => options.WithOrigins("http://localhost:4200").AllowAnyMethod()
+					options => options.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader()
 				);
 			}
 
