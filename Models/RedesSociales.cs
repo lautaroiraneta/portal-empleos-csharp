@@ -9,6 +9,6 @@
 		public string usuarioInstagram { get; set; }
 		public bool mostrarFeedInstagram { get; set; }
 		public string usuarioLinkedIn { get; set; }
-		public bool mostarFeedLinkedIn { get; set; }
+		public bool mostrarFeedLinkedIn { get; set; }
 	}
 }
