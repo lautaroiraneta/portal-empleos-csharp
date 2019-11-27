@@ -59,7 +59,7 @@ namespace PortalEmpleos.Controllers
 					" (@perfil, @red_social, @tipo_red, @mostrar_feed, @alta)", connection);
 
 				comFacebook.Parameters.AddWithValue("@perfil", perfilId);
-				comFacebook.Parameters.AddWithValue("@red_social", perfil.RedesSociales.usuarioFacebook);
+				comFacebook.Parameters.AddWithValue("@red_social", string.IsNullOrEmpty(perfil.RedesSociales.usuarioFacebook) ? DBNull.Value.ToString() : perfil.RedesSociales.usuarioFacebook);
 				comFacebook.Parameters.AddWithValue("@tipo_red", "FB");
 				comFacebook.Parameters.AddWithValue("@mostrar_feed", perfil.RedesSociales.mostrarFeedFacebook);
 				comFacebook.Parameters.AddWithValue("@alta", sqlFormattedDate);
@@ -73,7 +73,7 @@ namespace PortalEmpleos.Controllers
 					" (@perfil, @red_social, @tipo_red, @mostrar_feed, @alta)", connection);
 
 				comTwitter.Parameters.AddWithValue("@perfil", perfilId);
-				comTwitter.Parameters.AddWithValue("@red_social", perfil.RedesSociales.usuarioTwitter);
+				comTwitter.Parameters.AddWithValue("@red_social", string.IsNullOrEmpty(perfil.RedesSociales.usuarioTwitter) ? DBNull.Value.ToString() : perfil.RedesSociales.usuarioTwitter);
 				comTwitter.Parameters.AddWithValue("@tipo_red", "TW");
 				comTwitter.Parameters.AddWithValue("@mostrar_feed", perfil.RedesSociales.mostrarFeedTwitter);
 				comTwitter.Parameters.AddWithValue("@alta", sqlFormattedDate);
@@ -87,7 +87,7 @@ namespace PortalEmpleos.Controllers
 					" (@perfil, @red_social, @tipo_red, @mostrar_feed, @alta)", connection);
 
 				comInstagram.Parameters.AddWithValue("@perfil", perfilId);
-				comInstagram.Parameters.AddWithValue("@red_social", perfil.RedesSociales.usuarioInstagram);
+				comInstagram.Parameters.AddWithValue("@red_social", string.IsNullOrEmpty(perfil.RedesSociales.usuarioInstagram) ? DBNull.Value.ToString() : perfil.RedesSociales.usuarioInstagram);
 				comInstagram.Parameters.AddWithValue("@tipo_red", "IG");
 				comInstagram.Parameters.AddWithValue("@mostrar_feed", perfil.RedesSociales.mostrarFeedInstagram);
 				comInstagram.Parameters.AddWithValue("@alta", sqlFormattedDate);
@@ -101,7 +101,7 @@ namespace PortalEmpleos.Controllers
 					" (@perfil, @red_social, @tipo_red, @mostrar_feed, @alta)", connection);
 
 				comLinkedIn.Parameters.AddWithValue("@perfil", perfilId);
-				comLinkedIn.Parameters.AddWithValue("@red_social", perfil.RedesSociales.usuarioLinkedIn);
+				comLinkedIn.Parameters.AddWithValue("@red_social", string.IsNullOrEmpty(perfil.RedesSociales.usuarioLinkedIn) ? DBNull.Value.ToString() : perfil.RedesSociales.usuarioLinkedIn);
 				comLinkedIn.Parameters.AddWithValue("@tipo_red", "LI");
 				comLinkedIn.Parameters.AddWithValue("@mostrar_feed", perfil.RedesSociales.mostrarFeedLinkedIn);
 				comLinkedIn.Parameters.AddWithValue("@alta", sqlFormattedDate);
@@ -109,6 +109,7 @@ namespace PortalEmpleos.Controllers
 				comLinkedIn.ExecuteReader();
 				connection.Close();
 				connection.Open();
+
 			}
 
 			if (perfil.Emails.Length > 0)
@@ -148,6 +149,52 @@ namespace PortalEmpleos.Controllers
 					comTelefono.ExecuteReader();
 					connection.Close();
 					connection.Open();
+				}
+			}
+
+			if (perfil.ExperienciaLaboral.Length > 0)
+			{
+				for (int i = 0; i < perfil.ExperienciaLaboral.Length; ++i)
+				{
+					myDateTime = DateTime.Now;
+					sqlFormattedDate = myDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
+
+					SqlCommand comExperienciaLaboral = new SqlCommand("insert into experiencias_laborales (perfil, empresa, puesto, fecha_desde, fecha_hasta, actualmente_trabajando, comentarios, alta) output INSERTED.ID values" +
+						" (@perfil, @empresa, @puesto, @fecha_desde, @fecha_hasta, @actualmente_trabajando, @comentarios, @alta)", connection);
+
+					comExperienciaLaboral.Parameters.AddWithValue("@perfil", perfilId);
+					comExperienciaLaboral.Parameters.AddWithValue("@empresa", perfil.ExperienciaLaboral[i].Empresa);
+					comExperienciaLaboral.Parameters.AddWithValue("@puesto", perfil.ExperienciaLaboral[i].PuestoLaboral[0].Id);
+					comExperienciaLaboral.Parameters.AddWithValue("@fecha_desde", perfil.ExperienciaLaboral[i].FechaDesdeDT);
+					comExperienciaLaboral.Parameters.AddWithValue("@fecha_hasta", perfil.ExperienciaLaboral[i].FechaHastaDT);
+					comExperienciaLaboral.Parameters.AddWithValue("@actualmente_trabajando", perfil.ExperienciaLaboral[i].ActualmenteTrabajando ? 1 : 0);
+					comExperienciaLaboral.Parameters.AddWithValue("@comentarios", perfil.ExperienciaLaboral[i].Descripcion);
+					comExperienciaLaboral.Parameters.AddWithValue("@alta", sqlFormattedDate);
+
+					var experienciaLaboralId = (int)comExperienciaLaboral.ExecuteScalar();
+					connection.Close();
+					connection.Open();
+
+					// Conocimientos
+					if (perfil.ExperienciaLaboral[i].Conocimientos?.Length > 0)
+					{
+						for (int j = 0; j < perfil.ExperienciaLaboral[i].Conocimientos.Length; ++j)
+						{
+							myDateTime = DateTime.Now;
+							sqlFormattedDate = myDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
+
+							SqlCommand comConocimientos = new SqlCommand("insert into conocimientos_x_experiencia_laboral (conocimiento, experiencia_laboral, alta) values" +
+								" (@conocimiento, @experiencia_laboral, @alta)", connection);
+
+							comConocimientos.Parameters.AddWithValue("@conocimiento", perfil.ExperienciaLaboral[i].Conocimientos[j].Id);
+							comConocimientos.Parameters.AddWithValue("@experiencia_laboral", experienciaLaboralId);
+							comConocimientos.Parameters.AddWithValue("@alta", sqlFormattedDate);
+
+							comConocimientos.ExecuteReader();
+							connection.Close();
+							connection.Open();
+						}						
+					}
 				}
 			}
 

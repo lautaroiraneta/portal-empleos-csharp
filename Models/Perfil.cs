@@ -22,5 +22,6 @@ namespace PortalEmpleos.Models
 		public RedesSociales RedesSociales { get; set; }
 		public string ObjetivoLaboral { get; set; }
 		public string InteresesPersonales { get; set; }
+		public ExperienciaLaboral[] ExperienciaLaboral { get; set; }
 	}
 }
