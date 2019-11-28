@@ -1,10 +1,12 @@
-﻿namespace PortalEmpleos
+﻿using PortalEmpleos.Models;
+
+namespace PortalEmpleos
 {
 	public class Idioma
 	{
-		public string idioma { get; set; }
-		public string nivelOral { get; set; }
-		public string nivelEscrito { get; set; }
-		public string comentarios { get; set; }
+		public IdValor[] NombreIdioma { get; set; }
+		public IdValor[] NivelOral { get; set; }
+		public IdValor[] NivelEscrito { get; set; }
+		public string Comentarios { get; set; }
 	}
 }

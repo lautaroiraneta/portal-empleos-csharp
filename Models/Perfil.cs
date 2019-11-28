@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PortalEmpleos.Models
 {
@@ -23,5 +20,12 @@ namespace PortalEmpleos.Models
 		public string ObjetivoLaboral { get; set; }
 		public string InteresesPersonales { get; set; }
 		public ExperienciaLaboral[] ExperienciaLaboral { get; set; }
+		public ExperienciaEducativa[] ExperienciaEducativa { get; set; }
+		public Idioma[] Idioma { get; set; }
+		public float PorcentajeMateriasAprobadas { get; set; }
+		public int CantidadMateriasAprobadas { get; set; }
+		public float Promedio { get; set; }
+		public int AnioCursada { get; set; }
+		public IdValor[] Carrera { get; set; }
 	}
 }

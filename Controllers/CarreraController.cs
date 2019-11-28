@@ -46,5 +46,30 @@ namespace PortalEmpleos.Controllers
 
 			connection.Close();
 		}
+
+		[HttpGet]
+		public List<IdValor> GetList()
+		{
+			var carreras = new List<IdValor>();
+
+			string connectionstring = _configuration.GetConnectionString("DefaultConnectionString");
+			SqlConnection connection = new SqlConnection(connectionstring);
+			connection.Open();
+
+			SqlCommand com = new SqlCommand("select id, nombre from carreras", connection);
+			SqlDataReader dr = com.ExecuteReader();
+
+			while (dr.Read())
+			{
+				var carrera = new IdValor();
+				carrera.Id = dr["id"].ToString();
+				carrera.Valor = dr["nombre"].ToString();
+				carreras.Add(carrera);
+			}
+
+			connection.Close();
+
+			return carreras;
+		}
 	}
 }

@@ -28,8 +28,8 @@ namespace PortalEmpleos.Controllers
 			connection.Open();
 
 			SqlCommand com = new SqlCommand("" +
-				"insert into perfil (nombre, apellido, pais_residencia, provincia, fecha_nac, estado_civil, pais_nacionalidad, tipo_documento, documento, objetivo_laboral, intereses_personales, alta) output INSERTED.ID" +
-				" values (@nombre, @apellido, @pais_residencia, @provincia, @fecha_nac, @estado_civil, @pais_nacionalidad, @tipo_documento, @documento, @objetivo_laboral, @intereses_personales, @alta)", connection);
+				"insert into perfil (nombre, apellido, pais_residencia, provincia, fecha_nac, estado_civil, pais_nacionalidad, tipo_documento, documento, objetivo_laboral, intereses_personales, carrera, porcentaje_mat_apr, cantidad_mat_apr, promedio, anio_cursada, alta) output INSERTED.ID" +
+				" values (@nombre, @apellido, @pais_residencia, @provincia, @fecha_nac, @estado_civil, @pais_nacionalidad, @tipo_documento, @documento, @objetivo_laboral, @intereses_personales, @carrera, @porcentaje_mat_apr, @cantidad_mat_apr, @promedio, @anio_cursada, @alta)", connection);
 
 			com.Parameters.AddWithValue("@nombre", string.IsNullOrEmpty(perfil.Nombre) ? DBNull.Value.ToString() : perfil.Nombre);
 			com.Parameters.AddWithValue("@apellido", string.IsNullOrEmpty(perfil.Apellido) ? DBNull.Value.ToString() : perfil.Apellido);
@@ -42,6 +42,11 @@ namespace PortalEmpleos.Controllers
 			com.Parameters.AddWithValue("@documento", string.IsNullOrEmpty(perfil.Documento) ? DBNull.Value.ToString() : perfil.Documento);
 			com.Parameters.AddWithValue("@objetivo_laboral", string.IsNullOrEmpty(perfil.ObjetivoLaboral) ? DBNull.Value.ToString() : perfil.ObjetivoLaboral);
 			com.Parameters.AddWithValue("@intereses_personales", string.IsNullOrEmpty(perfil.InteresesPersonales) ? DBNull.Value.ToString() : perfil.InteresesPersonales);
+			com.Parameters.AddWithValue("@carrera", perfil.Carrera?.Length > 0 ? perfil.Carrera[0].Id : DBNull.Value.ToString());
+			com.Parameters.AddWithValue("@porcentaje_mat_apr", perfil.PorcentajeMateriasAprobadas);
+			com.Parameters.AddWithValue("@cantidad_mat_apr", perfil.CantidadMateriasAprobadas);
+			com.Parameters.AddWithValue("@promedio", perfil.Promedio);
+			com.Parameters.AddWithValue("@anio_cursada", perfil.AnioCursada);
 			com.Parameters.AddWithValue("@alta", sqlFormattedDate);
 
 			var perfilId = (int)com.ExecuteScalar();
@@ -195,6 +200,59 @@ namespace PortalEmpleos.Controllers
 							connection.Open();
 						}						
 					}
+				}
+			}
+
+			if (perfil.ExperienciaEducativa.Length > 0)
+			{
+				for (int i = 0; i < perfil.ExperienciaEducativa.Length; ++i)
+				{
+					myDateTime = DateTime.Now;
+					sqlFormattedDate = myDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
+
+					SqlCommand comExperienciaEducativa = new SqlCommand("insert into experiencias_educativas (perfil, institucion, titulo, tipo_estudio, estado, fecha_desde, fecha_hasta, actualmente_estudiando, comentarios, alta) output INSERTED.ID values" +
+						" (@perfil, @institucion, @titulo, @tipo_estudio, @estado, @fecha_desde, @fecha_hasta, @actualmente_estudiando, @comentarios, @alta)", connection);
+
+					comExperienciaEducativa.Parameters.AddWithValue("@perfil", perfilId);
+					comExperienciaEducativa.Parameters.AddWithValue("@institucion", string.IsNullOrEmpty(perfil.ExperienciaEducativa[i].Institucion) ? DBNull.Value.ToString() : perfil.ExperienciaEducativa[i].Institucion);
+					comExperienciaEducativa.Parameters.AddWithValue("@titulo", string.IsNullOrEmpty(perfil.ExperienciaEducativa[i].Titulo) ? DBNull.Value.ToString() : perfil.ExperienciaEducativa[i].Titulo);
+					comExperienciaEducativa.Parameters.AddWithValue("@tipo_estudio", perfil.ExperienciaEducativa[i].TipoEstudio.Length > 0 ? perfil.ExperienciaEducativa[i].TipoEstudio[0].Valor : DBNull.Value.ToString());
+					comExperienciaEducativa.Parameters.AddWithValue("@estado", perfil.ExperienciaEducativa[i].Estado.Length > 0 ? perfil.ExperienciaEducativa[i].Estado[0].Valor : DBNull.Value.ToString());
+					comExperienciaEducativa.Parameters.AddWithValue("@fecha_desde", perfil.ExperienciaEducativa[i].FechaDesdeDT);
+					comExperienciaEducativa.Parameters.AddWithValue("@fecha_hasta", perfil.ExperienciaEducativa[i].FechaHastaDT);
+					comExperienciaEducativa.Parameters.AddWithValue("@actualmente_estudiando", perfil.ExperienciaEducativa[i].ActualmenteEstudiando ? 1 : 0);
+					comExperienciaEducativa.Parameters.AddWithValue("@comentarios", string.IsNullOrEmpty(perfil.ExperienciaEducativa[i].Comentarios) ? DBNull.Value.ToString() : perfil.ExperienciaEducativa[i].Comentarios);
+					comExperienciaEducativa.Parameters.AddWithValue("@alta", sqlFormattedDate);
+
+					comExperienciaEducativa.ExecuteReader();
+					connection.Close();
+					connection.Open();
+
+				}
+			}
+
+			if (perfil.Idioma.Length > 0)
+			{
+				for (int i = 0; i < perfil.Idioma.Length; ++i)
+				{
+					var idioma = perfil.Idioma[i];
+					myDateTime = DateTime.Now;
+					sqlFormattedDate = myDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
+
+					SqlCommand comExperienciaEducativa = new SqlCommand("insert into idiomas_x_perfil (idioma, perfil, nivel_oral, nivel_escrito, comentarios, alta) output INSERTED.ID values" +
+						" (@idioma, @perfil, @nivel_oral, @nivel_escrito, @comentarios, @alta)", connection);
+
+					comExperienciaEducativa.Parameters.AddWithValue("@idioma", idioma.NombreIdioma.Length > 0 ? idioma.NombreIdioma[0].Id : DBNull.Value.ToString());
+					comExperienciaEducativa.Parameters.AddWithValue("@perfil", perfilId);
+					comExperienciaEducativa.Parameters.AddWithValue("@nivel_oral", idioma.NivelOral.Length > 0 ? idioma.NivelOral[0].Valor : DBNull.Value.ToString());
+					comExperienciaEducativa.Parameters.AddWithValue("@nivel_escrito", idioma.NivelEscrito.Length > 0 ? idioma.NivelEscrito[0].Valor : DBNull.Value.ToString());
+					comExperienciaEducativa.Parameters.AddWithValue("@comentarios", string.IsNullOrEmpty(idioma.Comentarios) ? DBNull.Value.ToString() : idioma.Comentarios);
+					comExperienciaEducativa.Parameters.AddWithValue("@alta", sqlFormattedDate);
+
+					comExperienciaEducativa.ExecuteReader();
+					connection.Close();
+					connection.Open();
+
 				}
 			}
 
