@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlServerCe;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using PortalEmpleos.Models;
 
 namespace PortalEmpleos.Controllers
 {
@@ -26,7 +23,7 @@ namespace PortalEmpleos.Controllers
 		}
 
 		[HttpPost]
-		public void Post([FromBody] Alumno alumno)
+		public Alumno Post([FromBody] Alumno alumno)
 		{
 			DateTime myDateTime = DateTime.Now;
 			string sqlFormattedDate = myDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
@@ -35,7 +32,7 @@ namespace PortalEmpleos.Controllers
 			SqlConnection connection = new SqlConnection(connectionstring);
 			connection.Open();
 
-			SqlCommand com = new SqlCommand("insert into alumnos (nombre, apellido, libretaUniversitaria, email, tipoDocumento, documento, nombreUsuario, alta) " +
+			SqlCommand com = new SqlCommand("insert into alumnos (nombre, apellido, libretaUniversitaria, email, tipoDocumento, documento, nombreUsuario, alta) output INSERTED.ID " +
 											"values (@nombre, @apellido, @libretaUniversitaria, @email, @tipoDocumento, @documento, @nombreUsuario, @alta)", connection);
 
 			com.Parameters.AddWithValue("@nombre", alumno.Nombres);
@@ -46,38 +43,40 @@ namespace PortalEmpleos.Controllers
 			com.Parameters.AddWithValue("@documento", alumno.NumeroDocumento);
 			com.Parameters.AddWithValue("@nombreUsuario", alumno.NombreUsuario);
 			com.Parameters.AddWithValue("@alta", sqlFormattedDate);
-			//SqlCommand com = new SqlCommand("" +
-			//	"insert into carreras " +
-			//	"(nombre, codigo) " +
-			//	"values" +
-			//	"('" + carrera.Nombre + "','" + carrera.Codigo + "')", connection);
 
-			//SqlCommand com = new SqlCommand("select top 1 * from alumnos", connection);
-			com.ExecuteReader();
+			var id = (int)com.ExecuteScalar();
 
 			connection.Close();
+
+			var alumnox = new Alumno();
+			alumnox.Id = id.ToString();
+			alumnox.Nombres = alumno.Nombres;
+			alumnox.Apellidos = alumno.Apellidos;
+
+			return alumnox;
 		}
 
-		[HttpGet]
-		[Route("/alumno/list")]
-		public Alumno Get()
+		[Route("/alumno/get-id-by-usuario")]
+		[HttpPost]
+		public Alumno GetId([FromBody] IdValor usuario)
 		{
 			string connectionstring = _configuration.GetConnectionString("DefaultConnectionString");
 			SqlConnection connection = new SqlConnection(connectionstring);
 			connection.Open();
-			SqlCommand com = new SqlCommand("insert into alumnos values ('lucas','vvv','123ee456','ww1234@..','dnei','ewewf','liranewweeta',getdate(),null)", connection);
 
-			//SqlCommand com = new SqlCommand("select top 1 * from alumnos", connection);
+			SqlCommand com = new SqlCommand("select id, nombre, apellido from alumnos where nombreUsuario = @nombreUsuario", connection);
+			com.Parameters.AddWithValue("@nombreUsuario", usuario.Valor);
 			SqlDataReader dr = com.ExecuteReader();
-			var alumno = new Alumno();
 
+			Alumno alumno = new Alumno();
 			while (dr.Read())
 			{
+				alumno.Id = dr["id"].ToString();
 				alumno.Nombres = dr["nombre"].ToString();
-
-
-				//cmbProductCategory.Items.Add(name);
+				alumno.Apellidos = dr["apellido"].ToString();
 			}
+			connection.Close();
+
 			return alumno;
 		}
 	}

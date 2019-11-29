@@ -7,6 +7,7 @@ namespace PortalEmpleos.Models
 		public string Id { get; set; }
 		public string Nombre { get; set; }
 		public string Apellido { get; set; }
+		public string Alumno { get; set; }
 		public IdValor[] PaisResidencia { get; set; }
 		public IdValor[] Emails { get; set; }
 		public IdValor[] Telefonos { get; set; }

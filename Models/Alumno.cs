@@ -2,9 +2,7 @@
 {
 	public class Alumno
 	{
-		internal string nombres;
-
-		// /alumno
+		public string Id { get; set; }
 		public string Nombres { get; set; }
 		public string Apellidos { get; set; }
 		public string LibretaUniversitaria { get; set; }

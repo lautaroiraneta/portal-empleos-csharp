@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using PortalEmpleos.Models;
 using System;
+using System.Collections.Generic;
 
 namespace PortalEmpleos.Controllers
 {
@@ -28,8 +29,8 @@ namespace PortalEmpleos.Controllers
 			connection.Open();
 
 			SqlCommand com = new SqlCommand("" +
-				"insert into perfil (nombre, apellido, pais_residencia, provincia, fecha_nac, estado_civil, pais_nacionalidad, tipo_documento, documento, objetivo_laboral, intereses_personales, carrera, porcentaje_mat_apr, cantidad_mat_apr, promedio, anio_cursada, alta) output INSERTED.ID" +
-				" values (@nombre, @apellido, @pais_residencia, @provincia, @fecha_nac, @estado_civil, @pais_nacionalidad, @tipo_documento, @documento, @objetivo_laboral, @intereses_personales, @carrera, @porcentaje_mat_apr, @cantidad_mat_apr, @promedio, @anio_cursada, @alta)", connection);
+				"insert into perfil (nombre, apellido, pais_residencia, provincia, fecha_nac, estado_civil, pais_nacionalidad, tipo_documento, documento, objetivo_laboral, intereses_personales, alumno, carrera, porcentaje_mat_apr, cantidad_mat_apr, promedio, anio_cursada, alta) output INSERTED.ID" +
+				" values (@nombre, @apellido, @pais_residencia, @provincia, @fecha_nac, @estado_civil, @pais_nacionalidad, @tipo_documento, @documento, @objetivo_laboral, @intereses_personales, @alumno, @carrera, @porcentaje_mat_apr, @cantidad_mat_apr, @promedio, @anio_cursada, @alta)", connection);
 
 			com.Parameters.AddWithValue("@nombre", string.IsNullOrEmpty(perfil.Nombre) ? DBNull.Value.ToString() : perfil.Nombre);
 			com.Parameters.AddWithValue("@apellido", string.IsNullOrEmpty(perfil.Apellido) ? DBNull.Value.ToString() : perfil.Apellido);
@@ -42,6 +43,7 @@ namespace PortalEmpleos.Controllers
 			com.Parameters.AddWithValue("@documento", string.IsNullOrEmpty(perfil.Documento) ? DBNull.Value.ToString() : perfil.Documento);
 			com.Parameters.AddWithValue("@objetivo_laboral", string.IsNullOrEmpty(perfil.ObjetivoLaboral) ? DBNull.Value.ToString() : perfil.ObjetivoLaboral);
 			com.Parameters.AddWithValue("@intereses_personales", string.IsNullOrEmpty(perfil.InteresesPersonales) ? DBNull.Value.ToString() : perfil.InteresesPersonales);
+			com.Parameters.AddWithValue("@alumno", string.IsNullOrEmpty(perfil.Alumno) ? DBNull.Value.ToString() : perfil.Alumno);
 			com.Parameters.AddWithValue("@carrera", perfil.Carrera?.Length > 0 ? perfil.Carrera[0].Id : DBNull.Value.ToString());
 			com.Parameters.AddWithValue("@porcentaje_mat_apr", perfil.PorcentajeMateriasAprobadas);
 			com.Parameters.AddWithValue("@cantidad_mat_apr", perfil.CantidadMateriasAprobadas);
@@ -257,6 +259,46 @@ namespace PortalEmpleos.Controllers
 			}
 
 			connection.Close();
+		}
+
+		[HttpGet]
+		public List<Perfil> GetList()
+		{
+			var perfiles = new List<Perfil>();
+
+			string connectionstring = _configuration.GetConnectionString("DefaultConnectionString");
+			SqlConnection connection = new SqlConnection(connectionstring);
+			connection.Open();
+
+			SqlCommand com = new SqlCommand("select * from perfil", connection);
+			SqlDataReader dr = com.ExecuteReader();
+
+
+			while (dr.Read())
+			{
+				var perfil = new Perfil();
+				perfil.Id = dr["id"].ToString();
+				perfil.Nombre = dr["nombre"].ToString();
+				perfil.Apellido = dr["apellido"].ToString();
+
+				SqlConnection connectionPais = new SqlConnection(connectionstring);
+				connectionPais.Open();
+				SqlCommand comPais = new SqlCommand("select id, nombre from paises where id = @id", connectionPais);
+				comPais.Parameters.AddWithValue("@id", dr["pais_residencia"].ToString());
+				SqlDataReader drPais = comPais.ExecuteReader();
+				while (drPais.Read())
+				{
+					perfil.PaisResidencia = new IdValor[] { new IdValor { Id = drPais["id"].ToString(), Valor = drPais["nombre"].ToString() } };
+				}
+				connectionPais.Close();
+
+				perfiles.Add(perfil);
+			}
+
+			connection.Close();
+
+
+			return perfiles;
 		}
 	}
 }
