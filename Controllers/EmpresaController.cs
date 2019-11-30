@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using PortalEmpleos.Models;
 using System;
+using System.Collections.Generic;
 
 namespace PortalEmpleos.Controllers
 {
@@ -88,6 +89,32 @@ namespace PortalEmpleos.Controllers
 			}
 
 			connection.Close();
+		}
+
+		[HttpGet]
+		public List<IdValor> GetList()
+		{
+			var empresas = new List<IdValor>();
+
+			string connectionstring = _configuration.GetConnectionString("DefaultConnectionString");
+			SqlConnection connection = new SqlConnection(connectionstring);
+			connection.Open();
+
+			SqlCommand com = new SqlCommand("select id, nombre from empresas", connection);
+			SqlDataReader dr = com.ExecuteReader();
+
+			while (dr.Read())
+			{
+				var empresa = new IdValor();
+				empresa.Id = dr["id"].ToString();
+				empresa.Valor = dr["nombre"].ToString();
+
+				empresas.Add(empresa);
+			}
+
+			connection.Close();
+
+			return empresas;
 		}
 	}
 }
