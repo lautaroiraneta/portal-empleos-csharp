@@ -33,7 +33,7 @@ namespace PortalEmpleos.Controllers
 				" values (@nombre, @estado, @alta)", connection);
 
 			com.Parameters.AddWithValue("@nombre", string.IsNullOrEmpty(puesto.Nombre) ? DBNull.Value.ToString() : puesto.Nombre);
-			com.Parameters.AddWithValue("@estado", "Pendiente_Al");
+			com.Parameters.AddWithValue("@estado", "Pendiente"); // Max 10 caract
 			com.Parameters.AddWithValue("@alta", sqlFormattedDate);
 
 			var empresaId = (int)com.ExecuteScalar();
@@ -49,7 +49,7 @@ namespace PortalEmpleos.Controllers
 			SqlConnection connection = new SqlConnection(connectionstring);
 			connection.Open();
 			
-			SqlCommand com = new SqlCommand("select id, nombre from puestos where estado in ('Activo','Pendiente_Al')", connection);
+			SqlCommand com = new SqlCommand("select id, nombre from puestos where estado in ('Activo','Pendiente')", connection);
 			SqlDataReader dr = com.ExecuteReader();
 
 			while (dr.Read())

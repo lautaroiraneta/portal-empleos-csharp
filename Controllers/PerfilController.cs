@@ -29,13 +29,16 @@ namespace PortalEmpleos.Controllers
 			connection.Open();
 
 			SqlCommand com = new SqlCommand("" +
-				"insert into perfil (nombre, apellido, pais_residencia, provincia, fecha_nac, estado_civil, pais_nacionalidad, tipo_documento, documento, objetivo_laboral, intereses_personales, alumno, carrera, porcentaje_mat_apr, cantidad_mat_apr, promedio, anio_cursada, alta) output INSERTED.ID" +
-				" values (@nombre, @apellido, @pais_residencia, @provincia, @fecha_nac, @estado_civil, @pais_nacionalidad, @tipo_documento, @documento, @objetivo_laboral, @intereses_personales, @alumno, @carrera, @porcentaje_mat_apr, @cantidad_mat_apr, @promedio, @anio_cursada, @alta)", connection);
+				"insert into perfil (nombre, apellido, pais_residencia, provincia, zona, ciudad, localidad, fecha_nac, estado_civil, pais_nacionalidad, tipo_documento, documento, objetivo_laboral, intereses_personales, alumno, carrera, porcentaje_mat_apr, cantidad_mat_apr, promedio, anio_cursada, alta) output INSERTED.ID" +
+				" values (@nombre, @apellido, @pais_residencia, @provincia, @zona, @ciudad, @localidad, @fecha_nac, @estado_civil, @pais_nacionalidad, @tipo_documento, @documento, @objetivo_laboral, @intereses_personales, @alumno, @carrera, @porcentaje_mat_apr, @cantidad_mat_apr, @promedio, @anio_cursada, @alta)", connection);
 
 			com.Parameters.AddWithValue("@nombre", string.IsNullOrEmpty(perfil.Nombre) ? DBNull.Value.ToString() : perfil.Nombre);
 			com.Parameters.AddWithValue("@apellido", string.IsNullOrEmpty(perfil.Apellido) ? DBNull.Value.ToString() : perfil.Apellido);
 			com.Parameters.AddWithValue("@pais_residencia", perfil.PaisResidencia?.Length > 0 ? perfil.PaisResidencia[0].Id : "1");
 			com.Parameters.AddWithValue("@provincia", perfil.ProvinciaResidencia?.Length > 0 ? perfil.ProvinciaResidencia[0].Id : "1");
+			com.Parameters.AddWithValue("@zona", perfil.Zona?.Length > 0 ? perfil.Zona[0].Id : "1");
+			com.Parameters.AddWithValue("@ciudad", perfil.Ciudad?.Length > 0 ? perfil.Ciudad[0].Id : "1");
+			com.Parameters.AddWithValue("@localidad", perfil.Localidad?.Length > 0 ? perfil.Localidad[0].Id : "1");
 			com.Parameters.AddWithValue("@fecha_nac", perfil.FechaNacimientoDT);
 			com.Parameters.AddWithValue("@estado_civil", perfil.EstadoCivil?.Length > 0 ? perfil.EstadoCivil[0].Valor : DBNull.Value.ToString());
 			com.Parameters.AddWithValue("@pais_nacionalidad", perfil.PaisNacionalidad?.Length > 0 ? perfil.PaisNacionalidad[0].Id : "1");
@@ -252,6 +255,28 @@ namespace PortalEmpleos.Controllers
 					comExperienciaEducativa.Parameters.AddWithValue("@alta", sqlFormattedDate);
 
 					comExperienciaEducativa.ExecuteReader();
+					connection.Close();
+					connection.Open();
+
+				}
+			}
+
+			if (perfil.OtrosConocimientos.Length > 0)
+			{
+				for (int i = 0; i < perfil.OtrosConocimientos.Length; ++i)
+				{
+					var otroConocimiento = perfil.OtrosConocimientos[i];
+					myDateTime = DateTime.Now;
+					sqlFormattedDate = myDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
+
+					SqlCommand comOtroConocimiento = new SqlCommand("insert into conocimientos_x_perfil (conocimiento, perfil, alta) values" +
+						" (@conocimiento, @perfil, @alta)", connection);
+
+					comOtroConocimiento.Parameters.AddWithValue("@conocimiento", otroConocimiento.Id);
+					comOtroConocimiento.Parameters.AddWithValue("@perfil", perfilId);
+					comOtroConocimiento.Parameters.AddWithValue("@alta", sqlFormattedDate);
+
+					comOtroConocimiento.ExecuteReader();
 					connection.Close();
 					connection.Open();
 

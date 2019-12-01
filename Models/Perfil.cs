@@ -12,6 +12,9 @@ namespace PortalEmpleos.Models
 		public IdValor[] Emails { get; set; }
 		public IdValor[] Telefonos { get; set; }
 		public IdValor[] ProvinciaResidencia { get; set; }
+		public IdValor[] Zona { get; set; }
+		public IdValor[] Ciudad { get; set; }
+		public IdValor[] Localidad { get; set; }
 		public DateTime FechaNacimientoDT { get; set; }
 		public IdValor[] EstadoCivil { get; set; }
 		public IdValor[] PaisNacionalidad { get; set; }
@@ -23,6 +26,7 @@ namespace PortalEmpleos.Models
 		public ExperienciaLaboral[] ExperienciaLaboral { get; set; }
 		public ExperienciaEducativa[] ExperienciaEducativa { get; set; }
 		public Idioma[] Idioma { get; set; }
+		public IdValor[] OtrosConocimientos { get; set; }
 		public float PorcentajeMateriasAprobadas { get; set; }
 		public int CantidadMateriasAprobadas { get; set; }
 		public float Promedio { get; set; }
