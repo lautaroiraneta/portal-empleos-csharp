@@ -28,10 +28,22 @@ namespace PortalEmpleos.Controllers
 			connection.Open();
 
 			SqlCommand com = new SqlCommand("" +
-				"insert into propuestas_caract_propias (carreras_afines, alta) output INSERTED.ID" +
-				" values (@carreras_afines, @alta)", connection);
+				"insert into propuestas_caract_propias (titulo, carreras_afines, pais, provincia, zona, ciudad, localidad, sueldo_bruto, tipo_empleo, turno_empleo, beneficios, fecha_finalizacion, descripcion, alta) output INSERTED.ID" +
+				" values (@titulo, @carreras_afines, @pais, @provincia, @zona, @ciudad, @localidad, @sueldo_bruto, @tipo_empleo, @turno_empleo, @beneficios, @fecha_finalizacion, @descripcion, @alta)", connection);
 
+			com.Parameters.AddWithValue("@titulo", string.IsNullOrEmpty(propuesta.Titulo) ? DBNull.Value.ToString() : propuesta.Titulo);
 			com.Parameters.AddWithValue("@carreras_afines", propuesta.CarrerasAfines);
+			com.Parameters.AddWithValue("@pais", propuesta.Pais?.Length > 0 ? propuesta.Pais[0].Id : "1");
+			com.Parameters.AddWithValue("@provincia", propuesta.Provincia?.Length > 0 ? propuesta.Provincia[0].Id : "1");
+			com.Parameters.AddWithValue("@zona", propuesta.Zona?.Length > 0 ? propuesta.Zona[0].Id : "1");
+			com.Parameters.AddWithValue("@ciudad", propuesta.Ciudad?.Length > 0 ? propuesta.Ciudad[0].Id : "1");
+			com.Parameters.AddWithValue("@localidad", propuesta.Localidad?.Length > 0 ? propuesta.Localidad[0].Id : "1");
+			com.Parameters.AddWithValue("@sueldo_bruto", propuesta.SueldoBruto);
+			com.Parameters.AddWithValue("@tipo_empleo", propuesta.TipoEmpleo?.Length > 0 ? propuesta.TipoEmpleo[0].Valor : DBNull.Value.ToString());
+			com.Parameters.AddWithValue("@turno_empleo", propuesta.Turno?.Length > 0 ? propuesta.Turno[0].Valor : DBNull.Value.ToString());
+			com.Parameters.AddWithValue("@beneficios", string.IsNullOrEmpty(propuesta.Beneficios) ? DBNull.Value.ToString() : propuesta.Beneficios);
+			com.Parameters.AddWithValue("@descripcion", string.IsNullOrEmpty(propuesta.Descripcion) ? DBNull.Value.ToString() : propuesta.Descripcion);
+			com.Parameters.AddWithValue("@fecha_finalizacion", propuesta.FechaFinalizacionDT);
 			com.Parameters.AddWithValue("@alta", sqlFormattedDate);
 
 			var propuestaCaractId = (int)com.ExecuteScalar();

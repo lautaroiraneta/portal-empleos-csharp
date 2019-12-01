@@ -14,11 +14,11 @@ namespace PortalEmpleos.Models
 		public IdValor[] Zona { get; set; }
 		public IdValor[] Ciudad { get; set; }
 		public IdValor[] Localidad { get; set; }
-		public string SueldoBruto { get; set; }
-		public string TipoEmpleo { get; set; }
-		public string TurnoEmpleo { get; set; }
+		public float SueldoBruto { get; set; }
+		public IdValor[] TipoEmpleo { get; set; }
+		public IdValor[] Turno { get; set; }
 		public string Beneficios { get; set; }
-		public DateTime FechaFinalizacion { get; set; }
+		public DateTime FechaFinalizacionDT { get; set; }
 		public string Descripcion { get; set; }
 		public int EdadMin { get; set; }
 		public bool ExcluyenteEdadMin { get; set; }
