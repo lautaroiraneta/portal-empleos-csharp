@@ -20,6 +20,7 @@ namespace PortalEmpleos.Models
 		public string Beneficios { get; set; }
 		public DateTime FechaFinalizacionDT { get; set; }
 		public string Descripcion { get; set; }
+
 		public int EdadMin { get; set; }
 		public bool ExcluyenteEdadMin { get; set; }
 		public int EdadMax { get; set; }
@@ -33,6 +34,9 @@ namespace PortalEmpleos.Models
 		public float Promedio { get; set; }
 		public bool ExcluyentePromedio { get; set; }
 		public float AnioCursada { get; set; }
+		public ExpLaboral[] Puestos { get; set; }
+		public Conoc[] Conocimientos { get; set; }
+		public Conocimiento[] ConocimientosExtra { get; set; }
 		public bool ExcluyenteAnioCursada { get; set; }
 		public DateTime Alta { get; set; }
 		public DateTime Baja { get; set; }
