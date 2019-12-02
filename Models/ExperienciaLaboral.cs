@@ -5,6 +5,7 @@ namespace PortalEmpleos
 {
 	public class ExperienciaLaboral
 	{
+		public string Id { get; set; }
 		public string Empresa { get; set; }
 		public Puesto[] PuestoLaboral { get; set; }
 		public DateTime FechaDesdeDT { get; set; }

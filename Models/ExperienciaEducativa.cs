@@ -5,6 +5,7 @@ namespace PortalEmpleos
 {
 	public class ExperienciaEducativa
 	{
+		public string Id { get; set; }
 		public string Institucion { get; set; }
 		public string Titulo { get; set; }
 		public IdValor[] TipoEstudio { get; set; }
