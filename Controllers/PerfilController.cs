@@ -122,10 +122,12 @@ namespace PortalEmpleos.Controllers
 
 			}
 
-			if (perfil.Emails.Length > 0)
+			if (perfil.Emails?.Length > 0)
 			{
 				for (int i = 0; i < perfil.Emails.Length; ++i)
 				{
+					var email = perfil.Emails[i];
+
 					myDateTime = DateTime.Now;
 					sqlFormattedDate = myDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
 
@@ -133,19 +135,22 @@ namespace PortalEmpleos.Controllers
 						" (@perfil, @correo, @alta)", connection);
 
 					comEmail.Parameters.AddWithValue("@perfil", perfilId);
-					comEmail.Parameters.AddWithValue("@correo", perfil.Emails[i].Valor);
+					comEmail.Parameters.AddWithValue("@correo", email.Valor);
 					comEmail.Parameters.AddWithValue("@alta", sqlFormattedDate);
 
 					comEmail.ExecuteReader();
 					connection.Close();
 					connection.Open();
+
 				}
 			}
 
-			if (perfil.Telefonos.Length > 0)
+			if (perfil.Telefonos?.Length > 0)
 			{
 				for (int i = 0; i < perfil.Telefonos.Length; ++i)
 				{
+					var telefono = perfil.Telefonos[i];
+
 					myDateTime = DateTime.Now;
 					sqlFormattedDate = myDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
 
@@ -153,7 +158,7 @@ namespace PortalEmpleos.Controllers
 						" (@perfil, @numero_telefono, @alta)", connection);
 
 					comTelefono.Parameters.AddWithValue("@perfil", perfilId);
-					comTelefono.Parameters.AddWithValue("@numero_telefono", perfil.Telefonos[i].Valor);
+					comTelefono.Parameters.AddWithValue("@numero_telefono", telefono.Valor);
 					comTelefono.Parameters.AddWithValue("@alta", sqlFormattedDate);
 
 					comTelefono.ExecuteReader();
@@ -261,7 +266,7 @@ namespace PortalEmpleos.Controllers
 				}
 			}
 
-			if (perfil.OtrosConocimientos.Length > 0)
+			if (perfil.OtrosConocimientos?.Length > 0)
 			{
 				for (int i = 0; i < perfil.OtrosConocimientos.Length; ++i)
 				{
@@ -309,6 +314,7 @@ namespace PortalEmpleos.Controllers
 				"perfil.documento, " +
 				"perfil.objetivo_laboral, " +
 				"perfil.intereses_personales, " +
+				"perfil.alumno, " +
 				"perfil.carrera as carrera_id, carrera.nombre as carrera_nombre, " +
 				"perfil.porcentaje_mat_apr, " +
 				"perfil.cantidad_mat_apr, " +
@@ -342,12 +348,13 @@ namespace PortalEmpleos.Controllers
 					perfil.Ciudad = new IdValor[] { new IdValor { Id = dr["ciudad_id"].ToString(), Valor = dr["ciudad_nombre"].ToString() } };
 					perfil.Localidad = new IdValor[] { new IdValor { Id = dr["localidad_id"].ToString(), Valor = dr["localidad_nombre"].ToString() } };
 					perfil.FechaNacimientoDT = Convert.ToDateTime(dr["fecha_nac"].ToString());
-					perfil.EstadoCivil = new IdValor[] { new IdValor { Id = GetEstadoCivilId(dr["estado_civil"].ToString()), Valor = dr["estado_civil"].ToString() } };
+					perfil.EstadoCivil = dr["estado_civil"].ToString() != null ? new IdValor[] { new IdValor { Id = GetEstadoCivilId(dr["estado_civil"].ToString()), Valor = dr["estado_civil"].ToString() } } : null;
 					perfil.PaisNacionalidad = new IdValor[] { new IdValor { Id = dr["pais_nacionalidad_id"].ToString(), Valor = dr["pais_nacionalidad_nombre"].ToString() } };
 					perfil.TipoDocumento = dr["tipo_documento"].ToString();
 					perfil.Documento = dr["documento"].ToString();
 					perfil.ObjetivoLaboral = dr["objetivo_laboral"].ToString();
 					perfil.InteresesPersonales = dr["intereses_personales"].ToString();
+					perfil.Alumno = dr["alumno"].ToString();
 					perfil.Carrera = new IdValor[] { new IdValor { Id = dr["carrera_id"].ToString(), Valor = dr["carrera_nombre"].ToString() } };
 					perfil.PorcentajeMateriasAprobadas = (float)Convert.ToDouble(dr["porcentaje_mat_apr"]);
 					perfil.CantidadMateriasAprobadas = Convert.ToInt32(dr["cantidad_mat_apr"]);
@@ -637,7 +644,7 @@ namespace PortalEmpleos.Controllers
 				case "Viudo":
 					return "5";
 				default:
-					return "1";
+					return "";
 			}
 		}
 	}
