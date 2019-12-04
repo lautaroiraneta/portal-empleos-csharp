@@ -51,5 +51,45 @@ namespace PortalEmpleos.Controllers
 
 			connection.Close();
 		}
+
+		[HttpGet]
+		public List<ConvenioView> GetList()
+		{
+			var convenios = new List<ConvenioView>();
+
+			string connectionstring = _configuration.GetConnectionString("DefaultConnectionString");
+			SqlConnection connection = new SqlConnection(connectionstring);
+			connection.Open();
+
+			SqlCommand com = new SqlCommand("SELECT " +
+				"dc.id as id, " +
+				"e.id as empresa_id, " +
+				"e.nombre as empresa_nombre, " +
+				"dc.nombre as nombre, " +
+				"convert(varchar, dc.alta, 103) as fec_ini, " +
+				"ec.nombre as estado " +
+				"from " +
+				"etapas_definicion_convenio dc " +
+				"inner join estados_convenios ec on ec.id = dc.estado " +
+				"inner join empresas e on e.id = dc.empresa " +
+				"where dc.baja is null and ec.baja is null and e.baja is null", connection);
+			SqlDataReader dr = com.ExecuteReader();
+
+			while (dr.Read())
+			{
+				var convenio = new ConvenioView();
+				convenio.Id = dr["id"].ToString();
+				convenio.Empresa = new IdValor { Id = dr["empresa_id"].ToString(), Valor = dr["empresa_nombre"].ToString() };
+				convenio.Estado = dr["estado"].ToString();
+				convenio.FecIni = dr["fec_ini"].ToString();
+				convenio.NombreEtapa = dr["nombre"].ToString();
+
+				convenios.Add(convenio);
+			}
+
+			connection.Close();
+
+			return convenios;
+		}
 	}
 }

@@ -60,14 +60,16 @@ namespace PortalEmpleos.Controllers
 			connection.Close();
 			connection.Open();
 
-			SqlCommand comUsrPost = new SqlCommand("insert into usuarios (nombre_usuario, pass_usuario, tipo_usuario, alumno, alta) " +
-				"values (@nombre_usuario, @pass_usuario, @tipo_usuario, @alumno, @alta)", connection);
+			SqlCommand comUsrPost = new SqlCommand("insert into usuarios (nombre_usuario, pass_usuario, tipo_usuario, alumno, alta, nombre, apellido) " +
+				"values (@nombre_usuario, @pass_usuario, @tipo_usuario, @alumno, @alta, @nombre, @apellido)", connection);
 
 			comUsrPost.Parameters.AddWithValue("@nombre_usuario", alumno.NombreUsuario);
-			comUsrPost.Parameters.AddWithValue("@pass_usuario", "123");
+			comUsrPost.Parameters.AddWithValue("@pass_usuario", DBNull.Value.ToString());
 			comUsrPost.Parameters.AddWithValue("@tipo_usuario", "a");
 			comUsrPost.Parameters.AddWithValue("@alumno", id);
 			comUsrPost.Parameters.AddWithValue("@alta", sqlFormattedDate);
+			comUsrPost.Parameters.AddWithValue("@nombre", alumno.Nombres);
+			comUsrPost.Parameters.AddWithValue("@apellido", alumno.Apellidos);
 
 			comUsrPost.ExecuteReader();
 
