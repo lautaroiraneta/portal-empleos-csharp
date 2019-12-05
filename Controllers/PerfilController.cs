@@ -584,6 +584,41 @@ namespace PortalEmpleos.Controllers
 			return perfil;
 		}
 
+		[HttpGet]
+		public List<PerfilView> GetList()
+		{
+			var perfiles = new List<PerfilView>();
+
+			string connectionstring = _configuration.GetConnectionString("DefaultConnectionString");
+			SqlConnection connection = new SqlConnection(connectionstring);
+			connection.Open();
+
+			SqlCommand com = new SqlCommand("select p.id as id, p.nombre + ' ' + p.apellido as nombre, c.nombre as carrera, pr.nombre + ', ' + pa.nombre as ubicacion " +
+				"from perfil p " +
+				"inner join carreras c on p.carrera = c.id " +
+				"inner join provincias pr on p.provincia = pr.id " +
+				"inner join paises pa on p.pais_residencia = pa.id " +
+				"where p.nombre != ' '", connection);
+			SqlDataReader dr = com.ExecuteReader();
+
+			if (dr.HasRows)
+			{
+				while (dr.Read())
+				{
+					var perfil = new PerfilView();
+					perfil.Id = dr["id"].ToString();
+					perfil.Nombre = dr["nombre"].ToString();
+					perfil.Carrera = dr["carrera"].ToString();
+					perfil.Ubicacion = dr["ubicacion"].ToString();
+					perfiles.Add(perfil);
+				}
+			}			
+
+			connection.Close();
+
+			return perfiles;
+		}
+
 		private string GetNivel(string v)
 		{
 			switch (v)
