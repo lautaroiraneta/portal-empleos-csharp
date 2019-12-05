@@ -9,5 +9,7 @@
 		public string FechaFin { get; set; }
 		public string DiaModif { get; set; }
 		public string Predecesoras { get; set; }
+		public string Alta { get; set; }
+		public int DiasModifInt { get; set; }
 	}
 }

@@ -99,5 +99,65 @@ namespace PortalEmpleos.Controllers
 
 			connection.Close();
 		}
+
+		[HttpGet]
+		public Micrositio GetById([FromQuery] string empresaId)
+		{
+			var micrositio = new Micrositio();
+			micrositio.EmpresaId = empresaId;
+
+			string connectionstring = _configuration.GetConnectionString("DefaultConnectionString");
+			SqlConnection connection = new SqlConnection(connectionstring);
+			connection.Open();
+
+			SqlCommand com = new SqlCommand("select id, descripcion_empresa, sitio_web from micrositios_empresa where empresa = @empresa", connection);
+			com.Parameters.AddWithValue("@empresa", empresaId);
+			SqlDataReader dr = com.ExecuteReader();
+
+			while (dr.Read())
+			{
+				micrositio.Id = dr["id"].ToString();
+				micrositio.Descripcion = dr["descripcion_empresa"].ToString();
+				micrositio.SitioWeb = dr["sitio_web"].ToString();
+			}
+
+			connection.Close();
+			connection.Open();
+
+			SqlCommand comRedesSociales = new SqlCommand("select id, red_social, tipo_red, mostrar_feed from redes_sociales_empresa where micrositio = @micrositio", connection);
+			comRedesSociales.Parameters.AddWithValue("@micrositio", micrositio.Id);
+			SqlDataReader drRedesSociales = comRedesSociales.ExecuteReader();
+
+			if (drRedesSociales.HasRows)
+			{
+				micrositio.RedesSociales = new RedesSociales();
+				while (drRedesSociales.Read())
+				{
+					switch (drRedesSociales["tipo_red"].ToString())
+					{
+						case "FB":
+							micrositio.RedesSociales.usuarioFacebook = drRedesSociales["red_social"].ToString();
+							micrositio.RedesSociales.mostrarFeedFacebook = (bool)drRedesSociales["mostrar_feed"];
+							break;
+						case "TW":
+							micrositio.RedesSociales.usuarioTwitter = drRedesSociales["red_social"].ToString();
+							micrositio.RedesSociales.mostrarFeedTwitter = (bool)drRedesSociales["mostrar_feed"];
+							break;
+						case "IG":
+							micrositio.RedesSociales.usuarioInstagram = drRedesSociales["red_social"].ToString();
+							micrositio.RedesSociales.mostrarFeedInstagram = (bool)drRedesSociales["mostrar_feed"];
+							break;
+						case "LI":
+							micrositio.RedesSociales.usuarioLinkedIn = drRedesSociales["red_social"].ToString();
+							micrositio.RedesSociales.mostrarFeedLinkedIn = (bool)drRedesSociales["mostrar_feed"];
+							break;
+					}
+				}
+			}
+
+			connection.Close();
+
+			return micrositio;
+		}
 	}
 }

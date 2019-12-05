@@ -2,6 +2,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using PortalEmpleos.Models;
+using System;
 using System.Collections.Generic;
 
 namespace PortalEmpleos.Controllers
@@ -90,11 +91,13 @@ namespace PortalEmpleos.Controllers
 
 			SqlCommand comTarea = new SqlCommand("SELECT " +
 				"t.id as idtarea, " +
+				"t.alta as alta, " +
 				"t.nombre as nombre, " +
 				"'Responsable: ' + u.nombre + ' ' + u.apellido as responsable, " +
 				"'Estado: ' + et.nombre as estado, " +
 				"'Fecha de fin de tarea: ' + convert(varchar, t.fecha_fin, 103) as fecha_fin, " +
 				"'Última modificación: Hace ' + convert(varchar, datediff(dd, t.fecha_modif, getdate())) + ' días' as dias_modif, " +
+				"datediff(dd, t.fecha_modif, getdate()) as dias_modif_int, " +
 				"case when exists " +
 				"(select 1 from relacion_tareas rt " +
 				"inner join tareas t2 on rt.tarea_pred = t2.id " +
@@ -123,6 +126,8 @@ namespace PortalEmpleos.Controllers
 					tarea.FechaFin = drTarea["fecha_fin"].ToString();
 					tarea.DiaModif = drTarea["dias_modif"].ToString();
 					tarea.Predecesoras = drTarea["predec"].ToString();
+					tarea.Alta = drTarea["alta"].ToString();
+					tarea.DiasModifInt = Convert.ToInt32(drTarea["dias_modif_int"]);
 
 					tareas.Add(tarea);
 				}

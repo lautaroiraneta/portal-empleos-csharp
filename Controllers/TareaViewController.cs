@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using PortalEmpleos.Models;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Net.Http.Headers;
 
 namespace PortalEmpleos.Controllers
 {
@@ -11,10 +15,12 @@ namespace PortalEmpleos.Controllers
 	public class TareaViewController : ControllerBase
 	{
 		private readonly IConfiguration _configuration;
+		private readonly IHostingEnvironment _hostingEnvironment;
 
-		public TareaViewController(IConfiguration configuration)
+		public TareaViewController(IConfiguration configuration, IHostingEnvironment hostingEnvironment)
 		{
 			_configuration = configuration;
+			_hostingEnvironment = hostingEnvironment;
 		}
 
 
@@ -76,11 +82,11 @@ namespace PortalEmpleos.Controllers
 
 				tarea.Comentarios = comentarios.ToArray();
 			}
-			
+
 			connection.Close();
 			connection.Open();
 
-			SqlCommand com3 = new SqlCommand("select a.id as id_archivo, a.archivo as archivo, u.nombre + ' ' + u.apellido as usuario, " +
+			SqlCommand com3 = new SqlCommand("select a.id as id_archivo, a.archivo_ruta as archivo, u.nombre + ' ' + u.apellido as usuario, " +
 				"convert(varchar, a.fecha, 103) as fecha " +
 				"from archivos_x_tarea a " +
 				"inner join usuarios u on u.id = a.usuario " +
@@ -98,7 +104,7 @@ namespace PortalEmpleos.Controllers
 				{
 					var archivo = new TareaViewArchivo();
 					archivo.Archivo = dr3["archivo"].ToString();
-					archivo.Id = dr3["id"].ToString();
+					archivo.Id = dr3["id_archivo"].ToString();
 					archivo.Usuario = dr3["usuario"].ToString();
 
 					archivos.Add(archivo);
@@ -166,6 +172,46 @@ namespace PortalEmpleos.Controllers
 			connection.Close();
 
 			return tarea;
+		}
+
+		[HttpPost, DisableRequestSizeLimit]
+		[Route("upload")]
+		public void UploadFile([FromQuery] string usuarioId, [FromQuery] string tareaId)
+		{
+
+			var file = Request.Form.Files[0];
+			string folderName = "Upload";
+			string webRootPath = _hostingEnvironment.ContentRootPath;
+			string newPath = Path.Combine(webRootPath, folderName);
+			if (!Directory.Exists(newPath))
+			{
+				Directory.CreateDirectory(newPath);
+			}
+			if (file.Length > 0)
+			{
+				string fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+				string fullPath = Path.Combine(newPath, fileName);
+				using (var stream = new FileStream(fullPath, FileMode.Create))
+				{
+					file.CopyTo(stream);
+				}
+
+				string connectionstring = _configuration.GetConnectionString("DefaultConnectionString");
+				SqlConnection connection = new SqlConnection(connectionstring);
+				string sqlFormattedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+				connection.Open();
+
+				SqlCommand com = new SqlCommand("insert into archivos_x_tarea (usuario, tarea, alta, archivo_ruta) " +
+					"values (@usuario, @tarea, @alta, @archivo_ruta)", connection);
+				com.Parameters.AddWithValue("@usuario", usuarioId);
+				com.Parameters.AddWithValue("@tarea", tareaId);
+				com.Parameters.AddWithValue("@alta", sqlFormattedDate);
+				com.Parameters.AddWithValue("@archivo_ruta", fileName);
+
+				com.ExecuteReader();
+
+				connection.Close();
+			}
 		}
 	}
 }
