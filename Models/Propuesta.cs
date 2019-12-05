@@ -4,10 +4,10 @@ namespace PortalEmpleos.Models
 {
 	public class Propuesta
 	{
+		public string Empresa { get; set; }
 		public string Titulo { get; set; }
 		public Puesto[] PuestosCarac { get; set; }
 		public IdValor[] Carreras { get; set; }
-		public string EmpresaId { get; set; }
 		public bool CarrerasAfines { get; set; }
 		public IdValor[] Pais { get; set; }
 		public IdValor[] Provincia { get; set; }

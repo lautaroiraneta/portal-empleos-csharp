@@ -28,9 +28,10 @@ namespace PortalEmpleos.Controllers
 			connection.Open();
 
 			SqlCommand com = new SqlCommand("" +
-				"insert into propuestas_caract_propias (titulo, carreras_afines, pais, provincia, zona, ciudad, localidad, sueldo_bruto, tipo_empleo, turno_empleo, beneficios, fecha_finalizacion, descripcion, alta) output INSERTED.ID" +
-				" values (@titulo, @carreras_afines, @pais, @provincia, @zona, @ciudad, @localidad, @sueldo_bruto, @tipo_empleo, @turno_empleo, @beneficios, @fecha_finalizacion, @descripcion, @alta)", connection);
+				"insert into propuestas_caract_propias (empresa, titulo, carreras_afines, pais, provincia, zona, ciudad, localidad, sueldo_bruto, tipo_empleo, turno_empleo, beneficios, fecha_finalizacion, descripcion, alta) output INSERTED.ID" +
+				" values (@empresa, @titulo, @carreras_afines, @pais, @provincia, @zona, @ciudad, @localidad, @sueldo_bruto, @tipo_empleo, @turno_empleo, @beneficios, @fecha_finalizacion, @descripcion, @alta)", connection);
 
+			com.Parameters.AddWithValue("@empresa", propuesta.Empresa);
 			com.Parameters.AddWithValue("@titulo", string.IsNullOrEmpty(propuesta.Titulo) ? DBNull.Value.ToString() : propuesta.Titulo);
 			com.Parameters.AddWithValue("@carreras_afines", propuesta.CarrerasAfines);
 			com.Parameters.AddWithValue("@pais", propuesta.Pais?.Length > 0 ? propuesta.Pais[0].Id : "1");
@@ -122,12 +123,13 @@ namespace PortalEmpleos.Controllers
 					if (puesto.Puesto != null)
 					{
 						SqlCommand comPuestoPropuestaReq = new SqlCommand("" +
-						"insert into puestos_x_propuesta_req (puesto, propuesta_req, anios_exp, alta)" +
-						" values (@puesto, @propuesta_req, @anios_exp, @alta)", connection);
+						"insert into puestos_x_propuesta_req (puesto, propuesta_req, anios_exp, excluyente, alta)" +
+						" values (@puesto, @propuesta_req, @anios_exp, @excluyente, @alta)", connection);
 
 						comPuestoPropuestaReq.Parameters.AddWithValue("@puesto", puesto.Puesto[0].Id);
 						comPuestoPropuestaReq.Parameters.AddWithValue("@propuesta_req", propuestasRequisitosId);
 						comPuestoPropuestaReq.Parameters.AddWithValue("@anios_exp", puesto.AniosExperiencia);
+						comPuestoPropuestaReq.Parameters.AddWithValue("@excluyente", puesto.Excluyente);
 						comPuestoPropuestaReq.Parameters.AddWithValue("@alta", sqlFormattedDate);
 
 						comPuestoPropuestaReq.ExecuteReader();
@@ -146,13 +148,14 @@ namespace PortalEmpleos.Controllers
 					if (conocimiento.Conocimiento != null)
 					{
 						SqlCommand comConocimientoPropuestaReq = new SqlCommand("" +
-							"insert into conocimientos_x_propuesta_req (conocimiento, propuesta_req, tipo, anios_exp, alta) " +
-							"values (@conocimiento, @propuesta_req, @tipo, @anios_exp, @alta)", connection);
+							"insert into conocimientos_x_propuesta_req (conocimiento, propuesta_req, tipo, anios_exp, excluyente, alta) " +
+							"values (@conocimiento, @propuesta_req, @tipo, @anios_exp, @excluyente, @alta)", connection);
 
 						comConocimientoPropuestaReq.Parameters.AddWithValue("@conocimiento", conocimiento.Conocimiento[0].Id);
 						comConocimientoPropuestaReq.Parameters.AddWithValue("@propuesta_req", propuestasRequisitosId);
 						comConocimientoPropuestaReq.Parameters.AddWithValue("@tipo", "f");
 						comConocimientoPropuestaReq.Parameters.AddWithValue("@anios_exp", conocimiento.AniosExperiencia);
+						comConocimientoPropuestaReq.Parameters.AddWithValue("@excluyente", conocimiento.Excluyente);
 						comConocimientoPropuestaReq.Parameters.AddWithValue("@alta", sqlFormattedDate);
 
 						comConocimientoPropuestaReq.ExecuteReader();
@@ -170,12 +173,13 @@ namespace PortalEmpleos.Controllers
 					var conocimiento = propuesta.ConocimientosExtra[i];
 
 					SqlCommand comConocimientoExtra = new SqlCommand("" +
-							"insert into conocimientos_x_propuesta_req (conocimiento, propuesta_req, tipo, alta) " +
-							"values (@conocimiento, @propuesta_req, @tipo, @alta)", connection);
+							"insert into conocimientos_x_propuesta_req (conocimiento, propuesta_req, tipo, excluyente, alta) " +
+							"values (@conocimiento, @propuesta_req, @tipo, @excluyente, @alta)", connection);
 
 					comConocimientoExtra.Parameters.AddWithValue("@conocimiento", conocimiento.Id);
 					comConocimientoExtra.Parameters.AddWithValue("@propuesta_req", propuestasRequisitosId);
 					comConocimientoExtra.Parameters.AddWithValue("@tipo", "e");
+					comConocimientoExtra.Parameters.AddWithValue("@excluyente", conocimiento.Excluyente);
 					comConocimientoExtra.Parameters.AddWithValue("@alta", sqlFormattedDate);
 
 					comConocimientoExtra.ExecuteReader();

@@ -26,8 +26,9 @@ namespace PortalEmpleos.Controllers
 			SqlConnection connection = new SqlConnection(connectionstring);
 			connection.Open();
 
-			SqlCommand com = new SqlCommand("insert into micrositios_empresa (descripcion_empresa, sitio_web, alta) output INSERTED.ID values (@descripcion_empresa, @sitio_web, @alta)", connection);
+			SqlCommand com = new SqlCommand("insert into micrositios_empresa (empresa, descripcion_empresa, sitio_web, alta) output INSERTED.ID values (@empresa, @descripcion_empresa, @sitio_web, @alta)", connection);
 
+			com.Parameters.AddWithValue("@empresa", micrositio.EmpresaId);
 			com.Parameters.AddWithValue("@descripcion_empresa", string.IsNullOrEmpty(micrositio.Descripcion) ? DBNull.Value.ToString() : micrositio.Descripcion);
 			com.Parameters.AddWithValue("@sitio_web", string.IsNullOrEmpty(micrositio.SitioWeb) ? DBNull.Value.ToString() : micrositio.SitioWeb);
 			com.Parameters.AddWithValue("@alta", sqlFormattedDate);

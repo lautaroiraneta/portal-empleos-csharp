@@ -4,5 +4,6 @@
 	{
 		public Conocimiento[] Conocimiento { get; set; }
 		public int AniosExperiencia { get; set; }
+		public bool Excluyente { get; set; }
 	}
 }

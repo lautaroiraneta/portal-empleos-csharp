@@ -4,5 +4,6 @@
 	{
 		public IdValor[] Puesto { get; set; }
 		public int AniosExperiencia { get; set; }
+		public bool Excluyente { get; set; }
 	}
 }

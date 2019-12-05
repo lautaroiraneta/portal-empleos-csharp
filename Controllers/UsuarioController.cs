@@ -69,5 +69,47 @@ namespace PortalEmpleos.Controllers
 
 			connection.Close();
 		}
+
+		[HttpGet]
+		[Route("get-by-id")]
+		public Usuario GetById([FromQuery] string nombreUsuario)
+		{
+			var usuario = new Usuario();
+
+			string connectionstring = _configuration.GetConnectionString("DefaultConnectionString");
+			SqlConnection connection = new SqlConnection(connectionstring);
+			connection.Open();
+
+			SqlCommand com = new SqlCommand("select id, nombre_usuario, pass_usuario, tipo_usuario, alumno, empresa, alta, aprobado, nombre, apellido from usuarios " +
+				"where nombre_usuario = @nombre_usuario", connection);
+			com.Parameters.AddWithValue("@nombre_usuario", nombreUsuario);
+
+			SqlDataReader dr = com.ExecuteReader();
+
+			if (dr.HasRows)
+			{
+				while (dr.Read())
+				{
+					usuario.Id = dr["id"].ToString();
+					usuario.NombreUsuario = dr["nombre_usuario"].ToString();
+					usuario.Password = dr["pass_usuario"].ToString();
+					usuario.TipoUsuario = dr["tipo_usuario"].ToString();
+					usuario.AlumnoId = dr["alumno"].ToString();
+					usuario.EmpresaId = dr["empresa"].ToString();
+					usuario.Alta = Convert.ToDateTime(dr["alta"]);
+					usuario.Aprobado = dr["aprobado"] == DBNull.Value ? false : Convert.ToBoolean(dr["aprobado"]);
+					usuario.Nombre = dr["nombre"].ToString();
+					usuario.Apellido = dr["apellido"].ToString();
+				}
+			}
+			else
+			{
+				throw new Exception("No existe el usuario ingresado");
+			}
+
+			connection.Close();
+
+			return usuario;
+		}
 	}
 }
