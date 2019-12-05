@@ -27,6 +27,17 @@ namespace PortalEmpleos.Controllers
 			string connectionstring = _configuration.GetConnectionString("DefaultConnectionString");
 			SqlConnection connection = new SqlConnection(connectionstring);
 			connection.Open();
+			SqlCommand comUsr = new SqlCommand("select id from usuarios where nombre_usuario = @nombre_usuario", connection);
+			comUsr.Parameters.AddWithValue("@nombre_usuario", empresa.ContactoNombreUsuario);
+
+			SqlDataReader dr = comUsr.ExecuteReader();
+			if (dr.HasRows)
+			{
+				throw new Exception("Ya existe un usuario con ese nombre!");
+			}
+
+			connection.Close();
+			connection.Open();
 
 			SqlCommand com = new SqlCommand("" +
 				"insert into empresas (nombre, cuit, sitio_web, domicilio, contacto_nombre, contacto_apellido, contacto_telefono, contacto_email, contacto_cargo, contacto_usuario, alta) output INSERTED.ID" +
@@ -87,6 +98,22 @@ namespace PortalEmpleos.Controllers
 					connection.Open();
 				}
 			}
+
+			connection.Close();
+			connection.Open();
+
+			SqlCommand comUsrPost = new SqlCommand("insert into usuarios (nombre_usuario, pass_usuario, tipo_usuario, empresa, alta, nombre, apellido) " +
+				"values (@nombre_usuario, @pass_usuario, @tipo_usuario, @empresa, @alta, @nombre, @apellido)", connection);
+
+			comUsrPost.Parameters.AddWithValue("@nombre_usuario", empresa.ContactoNombreUsuario);
+			comUsrPost.Parameters.AddWithValue("@pass_usuario", DBNull.Value.ToString());
+			comUsrPost.Parameters.AddWithValue("@tipo_usuario", "e");
+			comUsrPost.Parameters.AddWithValue("@empresa", empresaId);
+			comUsrPost.Parameters.AddWithValue("@alta", sqlFormattedDate);
+			comUsrPost.Parameters.AddWithValue("@nombre", empresa.ContactoNombre);
+			comUsrPost.Parameters.AddWithValue("@apellido", empresa.ContactoApellido);
+
+			comUsrPost.ExecuteReader();
 
 			connection.Close();
 		}
