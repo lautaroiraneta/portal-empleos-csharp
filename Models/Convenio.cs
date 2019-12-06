@@ -19,5 +19,6 @@ namespace PortalEmpleos.Models
 		public bool RenovacionAutomatica { get; set; }
 		public int PlazoExtension { get; set; }
 		public int CantMaxPasantes { get; set; }
+		public string EtapaId { get; set; }
 	}
 }

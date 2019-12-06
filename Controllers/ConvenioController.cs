@@ -45,7 +45,7 @@ namespace PortalEmpleos.Controllers
 			com.Parameters.AddWithValue("@cant_max_pasantes", convenio.CantMaxPasantes);
 			com.Parameters.AddWithValue("@alta", sqlFormattedDate);
 			com.Parameters.AddWithValue("@plazo_extension", convenio.PlazoExtension);
-			com.Parameters.AddWithValue("@etapa_definicion", DBNull.Value);
+			com.Parameters.AddWithValue("@etapa_definicion", convenio.EtapaId);
 			
 			com.ExecuteReader();
 

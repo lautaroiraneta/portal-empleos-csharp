@@ -135,8 +135,78 @@ namespace PortalEmpleos.Controllers
 			}
 
 			connection.Close();
+			connection.Open();
+
+			SqlCommand com2 = new SqlCommand("select e.id as empresa_id, e.nombre as empresa_nombre, c.id as convenio_id, c.nombre as convenio_nombre, edc.nombre as nombre_etapa, " +
+				"c.archivo_convenio_string as archivo " +
+				"from etapas_definicion_convenio edc inner join empresas e on e.id=edc.empresa " +
+				"left join convenios c on c.etapa_definicion=edc.id " +
+				"where c.baja is null and e.baja is null and edc.baja is null and edc.id = @id", connection);
+			com2.Parameters.AddWithValue("@id", etapaDefinicionId);
+
+			SqlDataReader dr2 = com2.ExecuteReader();
+			if (dr2.HasRows)
+			{
+				while(dr2.Read())
+				{
+					etapa.Empresa = new IdValor { Id = dr2["empresa_id"].ToString(), Valor = dr2["empresa_nombre"].ToString() };
+					etapa.Convenio = new IdValor { Id = dr2["convenio_id"].ToString(), Valor = dr2["convenio_nombre"].ToString() };
+					etapa.Archivo = dr2["archivo"].ToString();
+					etapa.NombreEtapa = dr2["nombre_etapa"].ToString();
+				}
+			}
+
+			connection.Close();
 
 			return etapa;
+		}
+
+		[HttpGet]
+		[Route("iniciar-etapa")]
+		public void IniciarEtapa([FromQuery] string etapaDefinicionId)
+		{
+			string connectionstring = _configuration.GetConnectionString("DefaultConnectionString");
+			SqlConnection connection = new SqlConnection(connectionstring);
+			connection.Open();
+
+			SqlCommand com = new SqlCommand("update etapas_definicion_convenio set estado = (select id from estados_convenios where nombre = 'En progreso') where id = @id", connection);
+			com.Parameters.AddWithValue("@id", etapaDefinicionId);
+
+			com.ExecuteReader();
+
+			connection.Close();
+		}
+
+		[HttpGet]
+		[Route("desestimar-etapa")]
+		public void DesestimarEtapa([FromQuery] string etapaDefinicionId)
+		{
+			string connectionstring = _configuration.GetConnectionString("DefaultConnectionString");
+			SqlConnection connection = new SqlConnection(connectionstring);
+			connection.Open();
+
+			SqlCommand com = new SqlCommand("update etapas_definicion_convenio set estado = (select id from estados_convenios where nombre = 'Desestimado') where id = @id", connection);
+			com.Parameters.AddWithValue("@id", etapaDefinicionId);
+
+			com.ExecuteReader();
+
+			connection.Close();
+		}
+
+		[HttpGet]
+		[Route("finalizar-etapa")]
+		public void FinalizarEtapa([FromQuery] string etapaDefinicionId)
+		{
+			string connectionstring = _configuration.GetConnectionString("DefaultConnectionString");
+			SqlConnection connection = new SqlConnection(connectionstring);
+			connection.Open();
+
+			SqlCommand com = new SqlCommand("update etapas_definicion_convenio set estado = (select id from estados_convenios where nombre = 'Finalizada') where id = @id", connection);
+			com.Parameters.AddWithValue("@id", etapaDefinicionId);
+
+			com.ExecuteReader();
+
+			connection.Close();
 		}
 	}
 }
