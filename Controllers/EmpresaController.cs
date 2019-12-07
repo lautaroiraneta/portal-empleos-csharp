@@ -102,7 +102,40 @@ namespace PortalEmpleos.Controllers
 			connection.Close();
 			connection.Open();
 
-			SqlCommand comUsrPost = new SqlCommand("insert into usuarios (nombre_usuario, pass_usuario, tipo_usuario, empresa, alta, nombre, apellido) " +
+			SqlCommand comEquiposPost = new SqlCommand("insert into equipos (nombre, tipo_equipo, empresa, alta) " +
+				"values ('Administradores de Etapas de Definición de Convenio', 'e', @empresa, @alta)", connection);
+
+			comEquiposPost.Parameters.AddWithValue("@empresa", empresaId);
+			comEquiposPost.Parameters.AddWithValue("@alta", sqlFormattedDate);
+
+			comEquiposPost.ExecuteReader();
+
+			connection.Close();
+			connection.Open();
+
+			SqlCommand comEquiposPost2 = new SqlCommand("insert into equipos (nombre, tipo_equipo, empresa, alta) " +
+				"values ('Seleccionador de alumnos', 'e', @empresa, @alta)", connection);
+
+			comEquiposPost2.Parameters.AddWithValue("@empresa", empresaId);
+			comEquiposPost2.Parameters.AddWithValue("@alta", sqlFormattedDate);
+
+			comEquiposPost2.ExecuteReader();
+
+			connection.Close();
+			connection.Open();
+
+			SqlCommand comEquiposPost3 = new SqlCommand("insert into equipos (nombre, tipo_equipo, empresa, alta) " +
+				"values ('Gestores de ingreso de alumno', 'e', @empresa, @alta)", connection);
+
+			comEquiposPost3.Parameters.AddWithValue("@empresa", empresaId);
+			comEquiposPost3.Parameters.AddWithValue("@alta", sqlFormattedDate);
+
+			comEquiposPost3.ExecuteReader();
+
+			connection.Close();
+			connection.Open();
+
+			SqlCommand comUsrPost = new SqlCommand("insert into usuarios (nombre_usuario, pass_usuario, tipo_usuario, empresa, alta, nombre, apellido) output INSERTED.ID " +
 				"values (@nombre_usuario, @pass_usuario, @tipo_usuario, @empresa, @alta, @nombre, @apellido)", connection);
 
 			comUsrPost.Parameters.AddWithValue("@nombre_usuario", empresa.ContactoNombreUsuario);
@@ -113,7 +146,21 @@ namespace PortalEmpleos.Controllers
 			comUsrPost.Parameters.AddWithValue("@nombre", empresa.ContactoNombre);
 			comUsrPost.Parameters.AddWithValue("@apellido", empresa.ContactoApellido);
 
-			comUsrPost.ExecuteReader();
+			var usuarioId = (int)comUsrPost.ExecuteScalar();
+
+			connection.Close();
+			connection.Open();
+
+			SqlCommand comMie1 = new SqlCommand("insert into miembros_equipos (usuario, equipo, alta) " +
+				"select @usuario, id, getdate() from equipos where empresa=@empresa", connection);
+
+			comMie1.Parameters.AddWithValue("@usuario", usuarioId);
+			comMie1.Parameters.AddWithValue("@empresa", empresaId);
+			//comUsrPost.Parameters.AddWithValue("@alta", sqlFormattedDate);
+			//comUsrPost.Parameters.AddWithValue("@nombre", empresa.ContactoNombre);
+			//comUsrPost.Parameters.AddWithValue("@apellido", empresa.ContactoApellido);
+
+			comMie1.ExecuteReader();
 
 			connection.Close();
 		}

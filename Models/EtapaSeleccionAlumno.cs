@@ -2,6 +2,7 @@
 {
 	public class EtapaSeleccionAlumno
 	{
+		public string Id { get; set; }
 		public string EtapaId { get; set; }
 		public string Alumno { get; set; }
 		public string Carrera { get; set; }

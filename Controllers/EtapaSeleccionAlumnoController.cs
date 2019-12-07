@@ -44,6 +44,7 @@ namespace PortalEmpleos.Controllers
 			while (dr.Read())
 			{
 				var etapa = new EtapaSeleccionAlumno();
+				etapa.Id = dr["etapa_id"].ToString();
 				etapa.Alumno = dr["alumno"].ToString();
 				etapa.Carrera = dr["carrera"].ToString();
 				etapa.Empresa = new IdValor { Id = dr["empresa_id"].ToString(), Valor = dr["empresa"].ToString() };
@@ -83,7 +84,7 @@ namespace PortalEmpleos.Controllers
 			connection.Close();
 		}
 
-		public void CrearEtapaSeleccionAlumno(string alumnoId, string propuestaId, string empresaId)
+		private void CrearEtapaSeleccionAlumno(string alumnoId, string propuestaId, string empresaId)
 		{
 			DateTime myDateTime = DateTime.Now;
 			string sqlFormattedDate = myDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
@@ -159,10 +160,11 @@ namespace PortalEmpleos.Controllers
 					"from convenios c " +
 					"inner join etapas_definicion_convenio edc on c.etapa_definicion = edc.id " +
 					"where edc.baja is null and edc.estado = 4 " +
-					"and((exists(select 1 from carreras ca where ca.id = (select carrera from perfil where alumno = @alumno))) or " +
-					"c.facultad is null) and edc.empresa = @empresa and c.baja is null", connection);
+					//"and((exists(select 1 from carreras ca where ca.id = (select carrera from perfil where alumno = @alumno))) or " +
+					//"c.facultad is null) " 
+					"and edc.empresa = @empresa and c.baja is null", connection);
 
-				comEtapaDefCon.Parameters.AddWithValue("@alumno", propuestaId);
+				//comEtapaDefCon.Parameters.AddWithValue("@alumno", propuestaId);
 				comEtapaDefCon.Parameters.AddWithValue("@empresa", empresaId);
 
 				SqlDataReader drEtapaDefCon = comEtapaDefCon.ExecuteReader();
