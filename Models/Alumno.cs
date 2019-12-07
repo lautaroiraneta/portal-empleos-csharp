@@ -9,6 +9,7 @@
 		public string Email { get; set; }
 		public string TipoDocumento { get; set; }
 		public string NumeroDocumento { get; set; }
-		public string NombreUsuario { get; set; }	
+		public string NombreUsuario { get; set; }
+		public string Password { get; set; }
 	}
 }

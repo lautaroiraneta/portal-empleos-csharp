@@ -19,7 +19,7 @@ namespace PortalEmpleos.Controllers
 		}
 
 		[HttpPost]
-		public void Post([FromBody] Empresa empresa)
+		public Usuario Post([FromBody] Empresa empresa)
 		{
 			DateTime myDateTime = DateTime.Now;
 			string sqlFormattedDate = myDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
@@ -139,7 +139,7 @@ namespace PortalEmpleos.Controllers
 				"values (@nombre_usuario, @pass_usuario, @tipo_usuario, @empresa, @alta, @nombre, @apellido)", connection);
 
 			comUsrPost.Parameters.AddWithValue("@nombre_usuario", empresa.ContactoNombreUsuario);
-			comUsrPost.Parameters.AddWithValue("@pass_usuario", DBNull.Value.ToString());
+			comUsrPost.Parameters.AddWithValue("@pass_usuario", empresa.Password);
 			comUsrPost.Parameters.AddWithValue("@tipo_usuario", "e");
 			comUsrPost.Parameters.AddWithValue("@empresa", empresaId);
 			comUsrPost.Parameters.AddWithValue("@alta", sqlFormattedDate);
@@ -156,13 +156,38 @@ namespace PortalEmpleos.Controllers
 
 			comMie1.Parameters.AddWithValue("@usuario", usuarioId);
 			comMie1.Parameters.AddWithValue("@empresa", empresaId);
-			//comUsrPost.Parameters.AddWithValue("@alta", sqlFormattedDate);
-			//comUsrPost.Parameters.AddWithValue("@nombre", empresa.ContactoNombre);
-			//comUsrPost.Parameters.AddWithValue("@apellido", empresa.ContactoApellido);
 
 			comMie1.ExecuteReader();
 
 			connection.Close();
+			connection.Open();
+			SqlCommand comu = new SqlCommand("select id, nombre_usuario, pass_usuario, tipo_usuario, alumno, empresa, alta, aprobado, nombre, apellido from usuarios " +
+					"where nombre_usuario = @nombre_usuario", connection);
+			comu.Parameters.AddWithValue("@nombre_usuario", empresa.ContactoNombreUsuario);
+
+			SqlDataReader dru = comu.ExecuteReader();
+
+			var usuario = new Usuario();
+			if (dru.HasRows)
+			{
+				while (dru.Read())
+				{
+					usuario.Id = dru["id"].ToString();
+					usuario.NombreUsuario = dru["nombre_usuario"].ToString();
+					usuario.Password = dru["pass_usuario"].ToString();
+					usuario.TipoUsuario = dru["tipo_usuario"].ToString();
+					usuario.AlumnoId = dru["alumno"].ToString();
+					usuario.EmpresaId = dru["empresa"].ToString();
+					usuario.Alta = dru["alta"].ToString();
+					usuario.Aprobado = dru["aprobado"] == DBNull.Value ? false : Convert.ToBoolean(dru["aprobado"]);
+					usuario.Nombre = dru["nombre"].ToString();
+					usuario.Apellido = dru["apellido"].ToString();
+				}
+			}
+
+			connection.Close();
+
+			return usuario;
 		}
 
 		[HttpGet]

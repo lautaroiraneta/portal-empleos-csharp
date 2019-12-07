@@ -28,7 +28,7 @@ namespace PortalEmpleos.Controllers
 			SqlConnection connection = new SqlConnection(connectionstring);
 			connection.Open();
 
-			SqlCommand com = new SqlCommand("select id, nombre_usuario, pass_usuario, tipo_usuario, alumno, empresa, alta, aprobado, nombre, apellido from usuarios", connection);
+			SqlCommand com = new SqlCommand("select id, nombre_usuario, pass_usuario, tipo_usuario, alumno, empresa, convert(varchar,alta,103) as alta, aprobado, nombre, apellido from usuarios", connection);
 			SqlDataReader dr = com.ExecuteReader();
 
 			while (dr.Read())
@@ -40,7 +40,7 @@ namespace PortalEmpleos.Controllers
 				usuario.TipoUsuario = dr["tipo_usuario"].ToString();
 				usuario.AlumnoId = dr["alumno"].ToString();
 				usuario.EmpresaId = dr["empresa"].ToString();
-				usuario.Alta = Convert.ToDateTime(dr["alta"]);
+				usuario.Alta = dr["alta"].ToString();
 				usuario.Aprobado = dr["aprobado"] == DBNull.Value ? false : Convert.ToBoolean(dr["aprobado"]);
 				usuario.Nombre = dr["nombre"].ToString();
 				usuario.Apellido = dr["apellido"].ToString();
@@ -72,7 +72,7 @@ namespace PortalEmpleos.Controllers
 
 		[HttpGet]
 		[Route("get-by-id")]
-		public Usuario GetById([FromQuery] string nombreUsuario)
+		public Usuario GetById([FromQuery] string nombreUsuario, [FromQuery] string password)
 		{
 			var usuario = new Usuario();
 
@@ -80,9 +80,10 @@ namespace PortalEmpleos.Controllers
 			SqlConnection connection = new SqlConnection(connectionstring);
 			connection.Open();
 
-			SqlCommand com = new SqlCommand("select id, nombre_usuario, pass_usuario, tipo_usuario, alumno, empresa, alta, aprobado, nombre, apellido from usuarios " +
-				"where nombre_usuario = @nombre_usuario", connection);
+			SqlCommand com = new SqlCommand("select id, nombre_usuario, pass_usuario, tipo_usuario, alumno, empresa, convert(varchar,alta,103) as alta, aprobado, nombre, apellido from usuarios " +
+				"where nombre_usuario = @nombre_usuario and pass_usuario = @pass_usuario", connection);
 			com.Parameters.AddWithValue("@nombre_usuario", nombreUsuario);
+			com.Parameters.AddWithValue("@pass_usuario", password);
 
 			SqlDataReader dr = com.ExecuteReader();
 
@@ -90,13 +91,17 @@ namespace PortalEmpleos.Controllers
 			{
 				while (dr.Read())
 				{
+					if (dr["aprobado"] == DBNull.Value || Convert.ToBoolean(dr["aprobado"]) == false)
+					{
+						throw new Exception("El usuario no está aprobado");
+					}
 					usuario.Id = dr["id"].ToString();
 					usuario.NombreUsuario = dr["nombre_usuario"].ToString();
 					usuario.Password = dr["pass_usuario"].ToString();
 					usuario.TipoUsuario = dr["tipo_usuario"].ToString();
 					usuario.AlumnoId = dr["alumno"].ToString();
 					usuario.EmpresaId = dr["empresa"].ToString();
-					usuario.Alta = Convert.ToDateTime(dr["alta"]);
+					usuario.Alta = dr["alta"].ToString();
 					usuario.Aprobado = dr["aprobado"] == DBNull.Value ? false : Convert.ToBoolean(dr["aprobado"]);
 					usuario.Nombre = dr["nombre"].ToString();
 					usuario.Apellido = dr["apellido"].ToString();
@@ -104,7 +109,7 @@ namespace PortalEmpleos.Controllers
 			}
 			else
 			{
-				throw new Exception("No existe el usuario ingresado");
+				throw new Exception("Datos de login incorrectos. Intente nuevamente.");
 			}
 
 			connection.Close();

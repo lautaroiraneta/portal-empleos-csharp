@@ -22,5 +22,6 @@ namespace PortalEmpleos.Models
 		public string ContactoNombreUsuario { get; set; }
 		public DateTime Alta { get; set; }
 		public DateTime Baja { get; set; }
+		public string Password { get; set; }
 	}
 }

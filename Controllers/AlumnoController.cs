@@ -10,7 +10,6 @@ namespace PortalEmpleos.Controllers
 {
 	[ApiController]
 	[Route("[controller]")]
-	[EnableCors("AllowOrigin")]
 	public class AlumnoController : ControllerBase
 	{
 		private readonly IConfiguration _configuration;
@@ -23,7 +22,7 @@ namespace PortalEmpleos.Controllers
 		}
 
 		[HttpPost]
-		public Alumno Post([FromBody] Alumno alumno)
+		public Usuario Post([FromBody] Alumno alumno)
 		{
 			DateTime myDateTime = DateTime.Now;
 			string sqlFormattedDate = myDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
@@ -64,7 +63,7 @@ namespace PortalEmpleos.Controllers
 				"values (@nombre_usuario, @pass_usuario, @tipo_usuario, @alumno, @alta, @nombre, @apellido)", connection);
 
 			comUsrPost.Parameters.AddWithValue("@nombre_usuario", alumno.NombreUsuario);
-			comUsrPost.Parameters.AddWithValue("@pass_usuario", DBNull.Value.ToString());
+			comUsrPost.Parameters.AddWithValue("@pass_usuario", alumno.Password);
 			comUsrPost.Parameters.AddWithValue("@tipo_usuario", "a");
 			comUsrPost.Parameters.AddWithValue("@alumno", id);
 			comUsrPost.Parameters.AddWithValue("@alta", sqlFormattedDate);
@@ -74,13 +73,34 @@ namespace PortalEmpleos.Controllers
 			comUsrPost.ExecuteReader();
 
 			connection.Close();
+			connection.Open();
+			SqlCommand comu = new SqlCommand("select id, nombre_usuario, pass_usuario, tipo_usuario, alumno, empresa, alta, aprobado, nombre, apellido from usuarios " +
+					"where nombre_usuario = @nombre_usuario", connection);
+			comu.Parameters.AddWithValue("@nombre_usuario", alumno.NombreUsuario);
 
-			var alumnox = new Alumno();
-			alumnox.Id = id.ToString();
-			alumnox.Nombres = alumno.Nombres;
-			alumnox.Apellidos = alumno.Apellidos;
+			SqlDataReader dru = comu.ExecuteReader();
 
-			return alumnox;
+			var usuario = new Usuario();
+			if (dru.HasRows)
+			{
+				while (dru.Read())
+				{
+					usuario.Id = dru["id"].ToString();
+					usuario.NombreUsuario = dru["nombre_usuario"].ToString();
+					usuario.Password = dru["pass_usuario"].ToString();
+					usuario.TipoUsuario = dru["tipo_usuario"].ToString();
+					usuario.AlumnoId = dru["alumno"].ToString();
+					usuario.EmpresaId = dru["empresa"].ToString();
+					usuario.Alta = dru["alta"].ToString();
+					usuario.Aprobado = dru["aprobado"] == DBNull.Value ? false : Convert.ToBoolean(dru["aprobado"]);
+					usuario.Nombre = dru["nombre"].ToString();
+					usuario.Apellido = dru["apellido"].ToString();
+				}
+			}
+
+			connection.Close();
+
+			return usuario;
 		}
 
 		[Route("/alumno/get-id-by-usuario")]
