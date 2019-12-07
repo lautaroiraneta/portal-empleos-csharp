@@ -116,5 +116,57 @@ namespace PortalEmpleos.Controllers
 
 			return usuario;
 		}
+
+		[HttpGet]
+		[Route("usuarios-resp")]
+		public List<IdValor> GetUsuarioRespList([FromQuery] string usuarioId, [FromQuery] string tipoEtapa, [FromQuery] string etapaId)
+		{
+			var usuarios = new List<IdValor>();
+
+			string connectionstring = _configuration.GetConnectionString("DefaultConnectionString");
+			SqlConnection connection = new SqlConnection(connectionstring);
+			connection.Open();
+
+			SqlCommand com = new SqlCommand("select u.id as id, " +
+				"u.nombre + ' ' + u.apellido as nombre from  " +
+				"usuarios u " +
+				"where " +
+				"((((select tipo_usuario from usuarios u3 where u3.id=@id_usuario)='e' " +
+				"and u.empresa=(select u2.empresa from usuarios u2 where u2.id=@id_usuario))) " +
+				"or " +
+				"(((select tipo_usuario from usuarios u3 where u3.id=@id_usuario)='u') and u.alumno is null and u.empresa is null)) " +
+				"and u.baja is null and u.id<>@id_usuario " +
+				"union " +
+				"select u.id, " +
+				"u.nombre + ' ' + u.apellido from " +
+				"usuarios u " +
+				"where " +
+				"(@tipo_etapa='seleccion' and u.id=(select alumno from etapas_seleccion_alumnos where id=@idetapa)) " +
+				"and u.baja is null and u.id<>@id_usuario "+
+				"union "+
+				"select u3.id as id, "+
+				"u3.nombre + ' ' + u3.apellido as nombre "+
+				"from participantes_etapa pe inner "+
+				"join usuarios u3 on u3.id = pe.usuario "+
+				"and u3.id <> @id_usuario and u3.baja is null", connection);
+			com.Parameters.AddWithValue("@id_usuario", usuarioId);
+			com.Parameters.AddWithValue("@tipo_etapa", tipoEtapa);
+			com.Parameters.AddWithValue("@idetapa", etapaId);
+
+			SqlDataReader dr = com.ExecuteReader();
+
+			while (dr.Read())
+			{
+				var usuario = new IdValor();
+				usuario.Id = dr["id"].ToString();
+				usuario.Valor = dr["nombre"].ToString();
+
+				usuarios.Add(usuario);
+			}
+
+			connection.Close();
+
+			return usuarios;
+		}
 	}
 }

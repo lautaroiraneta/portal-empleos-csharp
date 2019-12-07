@@ -6,6 +6,7 @@ using PortalEmpleos.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
 using System.Net.Http.Headers;
 
 namespace PortalEmpleos.Controllers
@@ -34,7 +35,7 @@ namespace PortalEmpleos.Controllers
 			connection.Open();
 
 			SqlCommand com = new SqlCommand("select t.id as id_tarea, t.nombre as nombre, t.descripcion as descripcion, e.nombre as estado, " +
-				"u.nombre + ' ' + u.apellido as responsable, convert(varchar, t.fecha_fin, 103) as fecha_fin from tareas t " +
+				"u.id as responsable_id, u.nombre + ' ' + u.apellido as responsable, convert(varchar, t.fecha_fin, 103) as fecha_fin from tareas t " +
 				"inner join estados_tareas e on e.id = t.estado " +
 				"inner join usuarios u on u.id = t.responsable " +
 				"where t.id = @id and e.baja is null and u.baja is null", connection);
@@ -48,7 +49,7 @@ namespace PortalEmpleos.Controllers
 				tarea.Nombre = dr["nombre"].ToString();
 				tarea.Descripcion = dr["descripcion"].ToString();
 				tarea.Estado = dr["estado"].ToString();
-				tarea.Responsable = dr["responsable"].ToString();
+				tarea.Responsable = new IdValor { Id = dr["responsable_id"].ToString(), Valor = dr["responsable"].ToString() };
 				tarea.FechaFin = dr["fecha_fin"].ToString();
 			}
 
@@ -56,7 +57,7 @@ namespace PortalEmpleos.Controllers
 			connection.Open();
 
 			SqlCommand com2 = new SqlCommand("select c.id as id_comentario, c.comentario as comentario, u.nombre + ' ' + u.apellido as usuario, " +
-				"convert(varchar, c.fecha, 103) as fecha " +
+				"convert(varchar, c.alta, 103) as fecha " +
 				"from comentarios_x_tarea c " +
 				"inner join usuarios u on u.id = c.usuario " +
 				"where tarea = @id and u.baja is null and c.baja is null " +
