@@ -282,6 +282,7 @@ namespace PortalEmpleos.Controllers
 			SqlCommand com2 = new SqlCommand("select e.id as empresa_id, " +
 				"e.nombre as empresa_nombre,  " +
 				"a.nombre + ' ' + a.apellido as alumno, " +
+				"a.id as alumno_id, " +
 				"isnull(perf.id,0) as perfil, " +
 				"isnull(pos.archivo,0) as archivo, " +
 				"pro.id as id_propuesta, " +
@@ -312,7 +313,7 @@ namespace PortalEmpleos.Controllers
 					etapa.Empresa = new IdValor { Id = dr2["empresa_id"].ToString(), Valor = dr2["empresa_nombre"].ToString() };
 					etapa.Convenio = new IdValor { Id = dr2["convenio_id"].ToString(), Valor = dr2["convenio_nombre"].ToString() };
 					etapa.Archivo = dr2["archivo"].ToString();
-					etapa.Alumno = dr2["alumno"].ToString();
+					etapa.Alumno = new IdValor { Id = dr2["alumno_id"].ToString(), Valor = dr2["alumno"].ToString() };
 					etapa.TituloPropuesta = dr2["titulo_propuesta"].ToString();
 					etapa.EtapaDefinicionConvenio = dr2["etapa_definicion_convenio"].ToString();
 					etapa.EtapaIngreso = dr2["etapa_ingreso"].ToString();

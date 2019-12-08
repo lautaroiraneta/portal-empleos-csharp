@@ -28,6 +28,32 @@ namespace PortalEmpleos.Controllers
 			string connectionstring = _configuration.GetConnectionString("DefaultConnectionString");
 			SqlConnection connection = new SqlConnection(connectionstring);
 			connection.Open();
+			SqlCommand comVal = new SqlCommand("select " +
+				"case when (select top 1 edc.estado from etapas_definicion_convenio edc where edc.empresa=@empresa order by alta desc)=4 " +
+				"then 'habilitado_pasant' else 'inhabilitado' end as habilitado_pasant " +
+				"from empresas where id=@empresa", connection);
+			comVal.Parameters.AddWithValue("@empresa", propuesta.Empresa);
+			bool estaHabilitado = false;
+			SqlDataReader drVal = comVal.ExecuteReader();
+			if (drVal.HasRows)
+			{
+				while(drVal.Read())
+				{
+					if (drVal["habilitado_pasant"].ToString() == "habilitado_pasant")
+					{
+						estaHabilitado = true;
+					}
+				}
+			}
+
+			connection.Close();
+
+			if (!estaHabilitado)
+			{
+				throw new Exception("Su empresa no está habilitada para hacer pasantías. Póngase en contacto con la Universidad.");
+			} 
+
+			connection.Open();
 
 			SqlCommand com = new SqlCommand("" +
 				"insert into propuestas_caract_propias (empresa, titulo, carreras_afines, pais, provincia, zona, ciudad, localidad, sueldo_bruto, tipo_empleo, turno_empleo, beneficios, fecha_finalizacion, descripcion, alta) output INSERTED.ID" +

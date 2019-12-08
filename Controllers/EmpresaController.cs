@@ -215,5 +215,38 @@ namespace PortalEmpleos.Controllers
 
 			return empresas;
 		}
+
+		[HttpGet]
+		[Route("get-by-id")]
+		public Empresa GetById([FromQuery] string empresaId)
+		{
+			var empresa = new Empresa();
+			string connectionstring = _configuration.GetConnectionString("DefaultConnectionString");
+			SqlConnection connection = new SqlConnection(connectionstring);
+			connection.Open();
+
+			SqlCommand com = new SqlCommand("select id, nombre, cuit, sitio_web, domicilio, contacto_nombre, contacto_apellido, contacto_telefono, contacto_email, contacto_cargo " +
+				"from empresas where id = @empresaId", connection);
+			com.Parameters.AddWithValue("@empresaId", empresaId);
+			SqlDataReader dr = com.ExecuteReader();
+
+			while (dr.Read())
+			{
+				empresa.Id = dr["id"].ToString();
+				empresa.Nombre = dr["nombre"].ToString();
+				empresa.Cuit = dr["cuit"].ToString();
+				empresa.SitioWeb = dr["sitio_web"].ToString();
+				empresa.Domicilio = dr["domicilio"].ToString();
+				empresa.ContactoNombre = dr["contacto_nombre"].ToString();
+				empresa.ContactoApellido = dr["contacto_apellido"].ToString();
+				empresa.ContactoTelefono = dr["contacto_telefono"].ToString();
+				empresa.ContactoEmail = dr["contacto_email"].ToString();
+				empresa.ContactoCargo = dr["contacto_cargo"].ToString();
+			}
+
+			connection.Close();
+
+			return empresa;
+		}
 	}
 }
