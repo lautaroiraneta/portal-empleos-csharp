@@ -49,7 +49,7 @@ namespace PortalEmpleos.Controllers
 			SqlConnection connection = new SqlConnection(connectionstring);
 			connection.Open();
 			
-			SqlCommand com = new SqlCommand("select id, nombre from puestos where estado in ('Activo','Pendiente')", connection);
+			SqlCommand com = new SqlCommand("select id, nombre from puestos where estado in ('valido','Pendiente')", connection);
 			SqlDataReader dr = com.ExecuteReader();
 
 			while (dr.Read())

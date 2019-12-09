@@ -38,7 +38,8 @@ namespace PortalEmpleos.Controllers
 				"left join carreras c on c.id = p.carrera " +
 				"left join empresas e on e.id = esa.EMPRESA " +
 				"left join propuestas_caract_propias pro on pro.id = esa.propuesta " +
-				"where esa.baja is null and es.baja is null and ua.baja is null and p.baja is null and c.baja is null and e.baja is null and pro.baja is null", connection);
+				"where esa.baja is null and es.baja is null and ua.baja is null and p.baja is null and c.baja is null and e.baja is null and pro.baja is null " +
+				"order by esa.alta desc", connection);
 			SqlDataReader dr = com.ExecuteReader();
 
 			while (dr.Read())
@@ -156,7 +157,7 @@ namespace PortalEmpleos.Controllers
 			{
 				connection.Open();
 
-				SqlCommand comEtapaDefCon = new SqlCommand("select c.id as id " +
+				SqlCommand comEtapaDefCon = new SqlCommand("select edc.id as id " +
 					"from convenios c " +
 					"inner join etapas_definicion_convenio edc on c.etapa_definicion = edc.id " +
 					"where edc.baja is null and edc.estado = 4 " +

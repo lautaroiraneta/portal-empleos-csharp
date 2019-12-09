@@ -122,40 +122,43 @@ namespace PortalEmpleos.Controllers
 			}
 
 			connection.Close();
-			connection.Open();
 
-			SqlCommand comRedesSociales = new SqlCommand("select id, red_social, tipo_red, mostrar_feed from redes_sociales_empresa where micrositio = @micrositio", connection);
-			comRedesSociales.Parameters.AddWithValue("@micrositio", micrositio.Id);
-			SqlDataReader drRedesSociales = comRedesSociales.ExecuteReader();
-
-			if (drRedesSociales.HasRows)
+			if (micrositio.Id != null)
 			{
-				micrositio.RedesSociales = new RedesSociales();
-				while (drRedesSociales.Read())
+				connection.Open();
+
+				SqlCommand comRedesSociales = new SqlCommand("select id, red_social, tipo_red, mostrar_feed from redes_sociales_empresa where micrositio = @micrositio", connection);
+				comRedesSociales.Parameters.AddWithValue("@micrositio", micrositio.Id);
+				SqlDataReader drRedesSociales = comRedesSociales.ExecuteReader();
+
+				if (drRedesSociales.HasRows)
 				{
-					switch (drRedesSociales["tipo_red"].ToString())
+					micrositio.RedesSociales = new RedesSociales();
+					while (drRedesSociales.Read())
 					{
-						case "FB":
-							micrositio.RedesSociales.usuarioFacebook = drRedesSociales["red_social"].ToString();
-							micrositio.RedesSociales.mostrarFeedFacebook = (bool)drRedesSociales["mostrar_feed"];
-							break;
-						case "TW":
-							micrositio.RedesSociales.usuarioTwitter = drRedesSociales["red_social"].ToString();
-							micrositio.RedesSociales.mostrarFeedTwitter = (bool)drRedesSociales["mostrar_feed"];
-							break;
-						case "IG":
-							micrositio.RedesSociales.usuarioInstagram = drRedesSociales["red_social"].ToString();
-							micrositio.RedesSociales.mostrarFeedInstagram = (bool)drRedesSociales["mostrar_feed"];
-							break;
-						case "LI":
-							micrositio.RedesSociales.usuarioLinkedIn = drRedesSociales["red_social"].ToString();
-							micrositio.RedesSociales.mostrarFeedLinkedIn = (bool)drRedesSociales["mostrar_feed"];
-							break;
+						switch (drRedesSociales["tipo_red"].ToString())
+						{
+							case "FB":
+								micrositio.RedesSociales.usuarioFacebook = drRedesSociales["red_social"].ToString();
+								micrositio.RedesSociales.mostrarFeedFacebook = (bool)drRedesSociales["mostrar_feed"];
+								break;
+							case "TW":
+								micrositio.RedesSociales.usuarioTwitter = drRedesSociales["red_social"].ToString();
+								micrositio.RedesSociales.mostrarFeedTwitter = (bool)drRedesSociales["mostrar_feed"];
+								break;
+							case "IG":
+								micrositio.RedesSociales.usuarioInstagram = drRedesSociales["red_social"].ToString();
+								micrositio.RedesSociales.mostrarFeedInstagram = (bool)drRedesSociales["mostrar_feed"];
+								break;
+							case "LI":
+								micrositio.RedesSociales.usuarioLinkedIn = drRedesSociales["red_social"].ToString();
+								micrositio.RedesSociales.mostrarFeedLinkedIn = (bool)drRedesSociales["mostrar_feed"];
+								break;
+						}
 					}
 				}
+				connection.Close();
 			}
-
-			connection.Close();
 
 			return micrositio;
 		}

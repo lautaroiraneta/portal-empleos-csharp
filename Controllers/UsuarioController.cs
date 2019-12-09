@@ -28,7 +28,7 @@ namespace PortalEmpleos.Controllers
 			SqlConnection connection = new SqlConnection(connectionstring);
 			connection.Open();
 
-			SqlCommand com = new SqlCommand("select id, nombre_usuario, pass_usuario, tipo_usuario, alumno, empresa, convert(varchar,alta,103) as alta, aprobado, nombre, apellido from usuarios", connection);
+			SqlCommand com = new SqlCommand("select id, nombre_usuario, pass_usuario, tipo_usuario, alumno, empresa, convert(varchar,alta,103) as alta, aprobado, nombre, apellido from usuarios order by alta asc", connection);
 			SqlDataReader dr = com.ExecuteReader();
 
 			while (dr.Read())

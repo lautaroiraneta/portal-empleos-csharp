@@ -246,7 +246,8 @@ namespace PortalEmpleos.Controllers
 				"left join zonas z on z.id=pro.zona " +
 				"left join ciudades c on c.id=pro.ciudad " +
 				"left join localidades l on l.id=pro.localidad " +
-				"where pro.baja is null", connection);
+				"where pro.baja is null " +
+				"order by pro.alta desc", connection);
 
 			SqlDataReader dr = com.ExecuteReader();
 
